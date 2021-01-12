@@ -1,0 +1,18 @@
+@import 'variables';
+
+.whiteBg {
+  width: 450px;
+  margin: 5% calc(50% - 225px);
+
+  @media screen and (max-width: 600px) {
+    width: 100%;
+    margin: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+.hidden-field {
+  opacity: 0;
+  position: absolute;
+}

@@ -1,0 +1,57 @@
+@import 'variables';
+
+$menu-width     : 55px ; // Width of the collapsed menu
+$menu-exp-width : 200px; // Width of the expanded menu (total = $menu-width + $menu-exp-width)
+$entry-height   : 55px ; // Height of the entries of the menu
+
+$menu-bg    : darken($primary_color, 20%); // Background color of the menu
+$menu-hover : darken($primary_color, 5%);
+$menu-text  : $white;
+
+$menu-entry-color           : $menu-text;              // Color of the icons of the menu ($nav_link_color)
+$menu-entry-hover-bg        : $menu-hover;             // Background of the entry on hovering ($nav_hover_link_bg_color)
+$menu-entry-hover-color     : darken($menu-text, 5%);  // Color of the icons of the menu on hovering ($nav_hover_link_color)
+$menu-entry-active-bg       : $menu-hover;             // Background of the active entry
+$menu-entry-active-color    : $menu-text;              // Color of the icon of the active menu entry
+
+
+.menu-bar {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  bottom: 0;
+  top: $navbar-height;
+  background: $menu-bg;
+  font-weight: 600;
+  letter-spacing: 1px;
+  overflow: hidden;
+
+  div.menu-entry {
+    max-width: $menu-width;
+    margin-bottom: 2px;
+    cursor: pointer;
+    .menu-entry-link {
+      text-align: left;
+      color: $menu-entry-color;
+      font-size: 20px;
+      text-decoration: none;
+      outline: none;
+      display: flex;
+      transition: background 0.2s;
+      padding: 17.5px 15px;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+    }
+    &:hover .menu-entry-link {
+      color: $menu-entry-hover-color;
+      background: $menu-entry-hover-bg;
+      border-left: 2px solid $menu-entry-active-color;
+    }
+    &.active .menu-entry-link {
+      color: $menu-entry-active-color;
+      background: $menu-entry-active-bg;
+      border-left: 2px solid $menu-entry-active-color;
+    }
+  }
+
+}

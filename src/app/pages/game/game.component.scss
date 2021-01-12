@@ -1,0 +1,228 @@
+@import 'src/scss/config/variables';
+
+.panel {
+  display: flex;
+  position: absolute;
+  top: 100px;
+  left: 30px;
+  bottom: 30px;
+  right: 30px;
+  .left-side {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  .right-side {
+    padding-left: 50px;
+    flex: 1;
+    display: flex;
+    flex-flow: column;
+    .buttons-row {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #d6d6d6;
+      jb-btn.back-btn { float: right; }
+    }
+    .tab-body { flex: 1; }
+  }
+  &.is-small {
+    display: block;
+    .left-side { margin-bottom: 30px; }
+    .right-side { padding-left: 0; }
+  }
+}
+
+
+
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid black;
+  border-radius: 2px;
+  cursor: pointer;
+  .square {
+    width: 12.5%;
+    height: 12.5%;
+    display: inline-block;
+    &.white { background: white; }
+    &.black { background: darken($primary_color, 10%); }
+    .selector{
+      border: 3px solid transparent;
+      height: 100%;
+      position: relative;
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      &.selected {
+        border: 3px solid rgba($secondary_color, 1);
+        background: rgba($secondary_color, 0.6);
+      }
+      &.is-selectable:hover {
+        border: 3px solid rgba($secondary_color, 1);
+        background: rgba($secondary_color, 0.3);
+      }
+      .move-mark {
+        position: absolute;
+        top: 32%;
+        left: 32%;
+        right: 32%;
+        bottom: 32%;
+        border-radius: 100%;
+        background: rgba(gray, 0.2);
+        z-index: 1;
+        //background: rgba($primary_color, 0.4);
+        //background: rgba($secondary_color, 0.4);
+        //border: 8px solid rgba($primary_color, 0.6);
+
+        &.has-piece {
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          margin: -1px;
+          border-radius: 3px;
+          //border: 4px dashed lighten($primary_color, 5%);
+          border: 4px dashed rgba(gray, 0.4);
+          background: transparent;
+        }
+
+      }
+    }
+
+    &.black .selector .move-mark {
+      background: rgba(white, 0.2);
+      &.has-piece {
+        //border: 4px dashed lighten($primary_color, 5%);
+        border: 4px dashed rgba(white, 0.6);
+        background: transparent;
+      }
+    }
+  }
+}
+
+
+.marks-h {
+  position: absolute;
+  top: -17px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  color: #bbbbbb;
+  i { font-style: normal; }
+}
+.marks-v {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-end;
+  font-size: 12px;
+  left: -12px;
+  color: #bbbbbb;
+  i { font-style: normal; }
+}
+
+
+.game-points { font-family: monospace; }
+.taken-pieces {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  img {
+    max-height: 28px;
+    margin: 0 -1px;
+  }
+}
+
+.tab-headers {
+  margin-top: 30px;
+  display: flex;
+  .tab-header {
+    flex: 1;
+    padding: 5px 15px;
+    text-align: center;
+    border: 1px solid black;
+    border-bottom: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    cursor: pointer;
+    color: $white;
+    background: darken($primary_color, 10%);
+    &.selected { background: $primary_color; }
+  }
+}
+.tab-body {
+  overflow: auto;
+  border: 1px solid black;
+  padding: 20px;
+  background: rgba(darken($primary_color, 10%), 0.25);
+  position: relative;
+  &.video {
+    overflow-y: hidden;
+    background: #2c2c2c;;
+    .video-buttons {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      padding: 2px;
+      background: black;
+    }
+    .local-video {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 30%;
+      z-index: 1;
+      border-top: 1px solid white;
+      border-left: 1px solid white;
+      border-top-left-radius: 6px;
+      transition-duration: 0.25s;
+      transition-timing-function: ease-out;
+      transform-origin: bottom;
+    }
+    .remote-video {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 40px);
+    }
+    &.off, &.connecting {
+      .local-video {
+        border: none;
+        border-radius: 0;
+        width: 100%;
+        height: calc(100% - 40px);
+        top: 40px;
+      }
+    }
+  }
+}
+.tab-footer {
+  border: 1px solid black;
+  border-top: none;
+  min-height: 22px;
+  padding: 0;
+  background: rgba(darken($primary_color, 10%), 0.25);
+}
+
+.chat-input-row {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid black;
+}
+
+
+.jb-spin-over::after {
+  height: 3em;
+  width: 3em;
+  border-width: 6px;
+}

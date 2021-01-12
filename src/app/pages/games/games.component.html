@@ -1,0 +1,55 @@
+<h1 translate>view.games.title</h1>
+
+<div class="row whiteBg padB10">
+  <jb-input class="col-md-5"
+            jbIcon="icon-search"
+            jbPlaceholder="view.common.search"
+            [jbAutoFocus]="true"
+            [(ngModel)]="gamesList.filterText"
+            (ngModelChange)="gamesList.filter($event)">
+  </jb-input>
+  <div class="col-md-6 marB15 text-right">
+    <jb-btn jbType="add" jbText="view.games.new_game" (jbClick)="newGame()"></jb-btn>
+  </div>
+  <jb-input class="col-md-1 flat" [(ngModel)]="timeNextMove" jbTooltip="New Game: Minutes timeout for every move"></jb-input>
+</div>
+
+<div class="row" [show]="gamesList.loadingStatus <= status.LOADING || gamesList.totalFiltered > 0">
+  <div class="col-12">
+    <ul class="list-unstyled table-list">
+      <li class="list-header">
+        <jb-list-header-col class="col-3"  colTitle="view.games.request_date" fieldName="reqTime"     [orderConf]="gamesList.orderConf"></jb-list-header-col>
+        <jb-list-header-col class="col-2"  colTitle="view.common.status"      fieldName="status"      [orderConf]="gamesList.orderConf"></jb-list-header-col>
+        <jb-list-header-col class="col-2"  colTitle="view.games.player1"      fieldName="playerName1" [orderConf]="gamesList.orderConf"></jb-list-header-col>
+        <jb-list-header-col class="col-2"  colTitle="view.games.player2"      fieldName="playerName2" [orderConf]="gamesList.orderConf"></jb-list-header-col>
+      </li>
+
+      <jb-list-placeholder [show]="gamesList.loadingStatus <= status.LOADING" [jbColumns]="[3, 2, 3, 3, 1]"></jb-list-placeholder>
+      <li class="list-row" [show]="gamesList.loadingStatus > status.LOADING" *ngFor="let game of gamesList.renderList$ | async">
+        <div class="col-3">{{game.requestDate}}</div>
+        <div class="col-2">{{game.status}}</div>
+        <div class="col-2">{{game.playerName1}}</div>
+        <div class="col-2">{{game.playerName2}}</div>
+        <div class="col-3 text-right">
+          <!--<jb-btn *ngIf="game.canJoin" (jbClick)="joinGame(game)"-->
+          <!--        jbType="add" jbText="view.common.join">-->
+          <!--</jb-btn>-->
+          <jb-btn jbType="delete-icon" (jbClick)="deleteGame(game)"></jb-btn>
+          <jb-btn jbType="view-icon" (jbClick)="showLink(game)"></jb-btn>
+          <jb-btn (jbClick)="router.navigate(['game/', game.id, game.token1])"
+                  jbType="update" jbText="view.common.go">
+          </jb-btn>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="row whiteBg" [show]="gamesList.totalFiltered > 5">
+  <jb-list-paginator class="col-12 mobile-sm" [jbCtrl]="gamesList" jbShowSelector="true"></jb-list-paginator>
+</div>
+<div class="row whiteBg" [show]="gamesList.loadingStatus > status.LOADING && gamesList.totalFiltered === 0">
+  <jb-no-data class="col-12" [jbIsPlaceholder]="true"
+              jbIcon="icon-finish" jbTitle="view.games.no_games">
+  </jb-no-data>
+</div>

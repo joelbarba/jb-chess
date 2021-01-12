@@ -1,0 +1,82 @@
+.tooltip {
+  z-index: 9050;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+// Animate ngb tooltips when they show up
+ngb-tooltip-window, ngb-popover-window {
+  animation: 0.4s ease-out jb-tooltip-show-up-ani;
+}
+@keyframes jb-tooltip-show-up-ani {
+  from { opacity: 0; }
+  to { opacity: $tooltip-opacity; }
+}
+
+// Specific popover styles for the profile "how to conference"
+ngb-popover-window.how-to-conf-popv {
+  z-index: 1060;
+  background: $white;
+  min-width: 400px;
+  max-height: 256px;
+  margin-right: 15px;
+  padding: 0;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 4px 8px 0,  rgba(0, 0, 0, 0.19) 0 6px 20px 6px;
+  .popover-header {
+    padding: 20px;
+    background: $white;
+    color: $primary_color;
+    border-bottom: 0;
+  }
+  .popover-body {
+    padding: 0 20px 20px;
+    background: $white;
+    p { font-size: $font-size-base; font-weight: 500; }
+  }
+  .arrow::after { border-left-color: $white; }
+}
+
+//.tooltip-inner {
+//  max-width: $tooltip-max-width;
+//  padding: $tooltip-padding-y $tooltip-padding-x;
+//  color: $tooltip-color;
+//  text-align: center;
+//  background-color: $tooltip-bg;
+//  @include border-radius($tooltip-border-radius);
+//}
+
+
+//ngb-popover-window.popover {
+//  z-index: 9999;
+//  font-size: 12px;
+//  letter-spacing: 0.5px;
+//  text-align: center;
+//  background: $popover-bg;
+//  border-radius: 5px;
+//  border: 1px solid rgba(0, 0, 0, 0.2);
+//
+//  .popover-header {
+//    display: none;
+//  }
+//  .popover-body {
+//    color: white;
+//    padding: 4px 12px;
+//  }
+//
+//  $arrow-size: 6px;
+//
+//  &.bs-popover-top .arrow {
+//    bottom: calc(-#{$arrow-size} - 1px);
+//    width: calc(#{$arrow-size} * 2);
+//    height: #{$arrow-size};
+//    margin: 0 calc(#{$arrow-size} / 2) 0 -#{$arrow-size};
+//    &::before, &::after {
+//      border-top-color : $popover-bg;
+//      border-width: #{$arrow-size} #{$arrow-size} 0;
+//    }
+//  }
+//  &.bs-popover-right  .arrow::after { border-right-color  : $popover-bg; }
+//  &.bs-popover-left   .arrow::after { border-left-color   : $popover-bg; }
+//  &.bs-popover-bottom .arrow::after { border-bottom-color : $popover-bg; }
+//}

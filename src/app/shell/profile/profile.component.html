@@ -1,0 +1,17 @@
+<div class="profile-panel" #profileContainer [class.is-expanded]="profile.isPanelExp$ | async">
+  <h3 translate>view.profile.title</h3>
+
+  <div class="row padT20">
+    <jb-input class="col-12"
+              jbLabel="view.profile.display_name"
+              (jbOnEnter)="updateProfile()"
+              [(ngModel)]="displayName"
+              [extCtrl$]="inputCtrl$">
+    </jb-input>
+  </div>
+  <div class="row">
+    <jb-btn class="col-6 block full-width mar0 padR5" jbType="cancel" (jbClick)="profile.toggleProfile(false)"></jb-btn>
+    <jb-btn class="col-6 block full-width mar0 padL5" jbText="view.profile.update" jbType="save" (jbClick)="updateProfile()"></jb-btn>
+  </div>
+
+</div>

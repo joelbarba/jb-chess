@@ -1,0 +1,59 @@
+@import 'variables';
+
+nav.navbar {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+
+  background: $nav-bg-color;
+  color: $nav-color;
+  a {
+    color: $nav-link-color;
+    text-decoration:  none;
+  }
+  position: fixed;
+  z-index: 1030;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: $navbar-height;
+  border-bottom: 1px darken($primary_color, 3%) solid;
+  padding: 0 1px;
+  box-shadow: 0 2px 3px rgba(34,36,38,.15);
+
+  .navbar-brand {
+    flex: 1 1 auto;
+    max-width: $max-logo-width;
+    padding: 0 10px;
+    margin-right: 15px;
+    img { max-height: calc(#{$navbar-height} - 20px); }
+  }
+
+  .navbar-content {
+    flex: 0 1 100%;
+    height: $navbar-height;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .nav-item {
+      cursor: pointer;
+      padding: 4px 20px 2px;
+      font-size: 30px;
+      line-height: 30px;
+      span[class*="icon-"]:hover { color: $nav-hover-color; }
+    }
+
+  }
+
+  // NavBar for small resolutions
+  @media (max-width: 992px) {
+    .navbar-content .nav-item {
+      padding: 4px 10px 2px;
+      font-size: 25px;
+    }
+  }
+}
+
+

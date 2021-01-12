@@ -1,0 +1,26 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/home"><img src="assets/logo.png?v=0.1"></a>
+  </div>
+
+  <div class="navbar-content">
+
+    <!--Profile-->
+    <div class="nav-item" *ngIf="profile.isLoggedIn" (click)="profile.toggleProfile()">
+      <span class="icon-user" [ngbTooltip]="'view.profile.title' | translate" placement="left"></span>
+    </div>
+
+    <!--Log out-->
+    <div class="nav-item" *ngIf="profile.isLoggedIn" (click)="logout()">
+      <span class="icon-switch" [ngbTooltip]="'view.common.logout' | translate" placement="left"></span>
+    </div>
+
+    <!--Help link -->
+    <!--<div class="nav-item nav-help-link">-->
+    <!--  <a href="#" target="_blank">-->
+    <!--    <span class="icon-question4"></span>-->
+    <!--  </a>-->
+    <!--</div>-->
+
+  </div>
+</nav>

@@ -1,0 +1,19 @@
+@import 'src/scss/config/variables';
+
+.modal-body {
+  display: flex;
+  justify-content: space-around;
+  img {
+    max-width: 110px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 6px;
+    margin: 5px 0 10px;
+    &:hover {
+      cursor: pointer;
+      border: 2px solid #000000;
+      padding: 5px;
+      box-shadow: #bdbdbd 5px 4px 5px 2px;
+    }
+  }
+}

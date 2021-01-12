@@ -1,0 +1,19 @@
+<jb-modal-header jbTitle="view.game.select_piece.header" (jbClose)="activeModal.dismiss()"></jb-modal-header>
+
+<div class="modal-body">
+
+  <img *ngIf="color === 'WHITE'" src="../../../../assets/w-knight.png" (click)="selectPiece('knight')">
+  <img *ngIf="color === 'WHITE'" src="../../../../assets/w-bishop.png" (click)="selectPiece('bishop')">
+  <img *ngIf="color === 'WHITE'" src="../../../../assets/w-rook.png" (click)="selectPiece('rook')">
+  <img *ngIf="color === 'WHITE'" src="../../../../assets/w-queen.png" (click)="selectPiece('queen')">
+
+  <img *ngIf="color === 'BLACK'" src="../../../../assets/b-knight.png" (click)="selectPiece('knight')">
+  <img *ngIf="color === 'BLACK'" src="../../../../assets/b-bishop.png" (click)="selectPiece('bishop')">
+  <img *ngIf="color === 'BLACK'" src="../../../../assets/b-rook.png" (click)="selectPiece('rook')">
+  <img *ngIf="color === 'BLACK'" src="../../../../assets/b-queen.png" (click)="selectPiece('queen')">
+
+</div>
+
+<!--<div class="modal-footer">-->
+<!--  <jb-btn jbType="cancel" (jbClick)="activeModal.dismiss()"></jb-btn>-->
+<!--</div>-->

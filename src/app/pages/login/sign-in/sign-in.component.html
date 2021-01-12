@@ -1,0 +1,58 @@
+<div class="whiteBg">
+  <form #signForm="ngForm" autocomplete="off">
+    <div class="row pad15">
+      <div class="col-12">
+        <h1 class="text-center" translate>view.login.sign_in</h1>
+        <hr>
+      </div>
+
+      <!--This is to avoid Chrome autofilling the inputs (it ignores autocomplete="off")-->
+      <input class="hidden-field" type="email" name="email">
+      <input class="hidden-field" type="password" name="hidden-pass">
+
+      <p class="col-12 padB15" translate>view.sign.email_tip</p>
+
+      <!--Email-->
+      <jb-input class="col-12"
+                [(ngModel)]="email" name="the-email"
+                jbLabel="view.common.email"
+                jbPlaceholder="view.common.email"
+                jbType="email"
+                [jbRequired]="true"
+                [jbAutocomplete]="false"
+                [jbAutoFocus]="true">
+      </jb-input>
+
+      <!--Password-->
+      <jb-input class="col-12"
+                [(ngModel)]="password" name="password"
+                jbLabel="view.common.password"
+                jbPlaceholder="view.common.password"
+                jbType="password"
+                [jbAutocomplete]="false"
+                [jbRequired]="true">
+      </jb-input>
+
+      <!--Repeat Password-->
+      <jb-input class="col-12"
+                [(ngModel)]="password2" name="password2"
+                jbLabel="view.common.repeat_password"
+                jbPlaceholder="view.common.password"
+                jbType="password"
+                [jbRequired]="true"
+                [jbAutocomplete]="false"
+                [jbValidIf]="password == password2">
+      </jb-input>
+
+
+      <!--Sign In-->
+      <jb-btn class="col-12 padT30 full-width"
+              jbText="view.login.sign_in"
+              jbType="update"
+              [jbDisabled]="signForm.invalid"
+              (jbClick)="signIn()">
+      </jb-btn>
+
+    </div>
+  </form>
+</div>

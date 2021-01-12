@@ -1,0 +1,123 @@
+// ********* Main Colors ***********
+$primary_color    : #18cacd;
+$secondary_color  : #57c16f;
+$tertiary_color   : #F17B3F;
+$quaternary_color : #3f8cca;
+$warning_color    : #e84e3a;
+$extra_color      : #a766b2;
+
+$white          : #fff;
+$black          : #000;
+$grey           : #929292;
+$light-gray     : #e3e3e3;
+$lighter-gray   : #f5f5f5;
+$text-color     : #525254;
+$optional-color : #ccc;       // (bootstrap default - $input-border)
+$disabled-color : #a0a0a0;
+$focused-color  : darken($primary_color, 20%);
+$required-color : $primary_color;
+$valid-color    : $primary_color;
+$invalid-color  : $warning_color;
+$input-placeholder-color: #c0c0c0;
+$special-link-color: $primary_color;
+
+// ********* Shell ***********
+$navbar-height  : 72px;      // Height of the header
+$menu-width     : 55px;      // Width of the collapsed menu
+$menu-exp-width : 200px;     // Width of the expanded menu (total = $menu-width + $menu-exp-width)
+
+// ********* Header Navbar ***********
+$nav-bg-color      : $primary_color;      // Background color of the navbar
+$nav-color         : $white;              // Color of the navbar text
+$nav-link-color    : $white;              // Color of the navbar text of the links
+$nav-hover-color   : darken($white, 10%); // Color of the navbar icons when hovering
+$max-logo-width    : 300px;               // Max size of the logo in the navbar
+
+
+/************************  Bootstrap theme overwrite ***************************/
+/***** https://github.com/twbs/bootstrap/blob/master/scss/_variables.scss ******/
+$primary        : $primary_color;
+$secondary      : $secondary_color;
+$success        : $primary_color;
+$info           : $quaternary_color;
+$warning        : $extra_color;
+$danger         : $warning_color;
+$light          : $primary_color;
+$dark           : $primary_color;
+$error-color    : $warning_color;
+$success-color  : $primary_color;
+$link-color     : $primary_color;
+$link-hover-color: darken($primary_color, 5%);
+$body-color     : $text-color;
+$body-bg        : #ebeff2;
+
+$navbar-dark-color              : $white;
+$navbar-dark-hover-color        : rgba($white, .75);
+$navbar-dark-active-color       : rgba($white, .80);
+$navbar-dark-disabled-color     : rgba($white, .25);
+$navbar-dark-brand-color        : $primary_color;
+$navbar-dark-brand-hover-color  : $white;
+
+// ------ Globals ------
+@font-face { font-family: 'WF-Sans-M'; src: url('../../assets/fonts/PublicSans-Medium.ttf'); }
+$font-family-base: 'WF-Sans-M', sans-serif;
+$font-family-sans-serif: 'WF-Sans-M', sans-serif;
+//$font-family-monospace: monospace;
+$font-size-base: 0.875rem; // 14px; (default 1rem = 16px)
+$font-weight-base: 400;
+$line-height-base: 1.5;
+
+
+// Grid breakpoints - https://getbootstrap.com/docs/4.1/layout/overview/?source=post_page#responsive-breakpoints
+$grid-breakpoints: (xs: 0, sm: 768px, md: 992px, lg: 1200px, xl: 1600px);
+
+// Modal sizes
+//$modal-xl:  1140px;
+$modal-lg:  900px; // Default=800
+$modal-md:  600px; // Default=500
+$modal-sm:  400px; // Default=300
+$modal-header-padding: 25px;
+$modal-header-padding-y: 0;
+$modal-header-padding-x: 0;
+
+
+// Z position for modals
+$zindex-modal-backdrop: 1040; // 1040;
+$zindex-modal:          1050; // 1050;
+
+// Bootstrap Tooltips (+ ngb Tooltips)
+$zindex-tooltip: 5100;  // Show tooltips over navbar and menu
+$tooltip-bg: darken($quaternary_color, 5%);
+$tooltip-opacity: 0.9;
+//$tooltip-font-size:                 $font-size-sm;
+//$tooltip-max-width:                 200px;
+//$tooltip-color:                     $white;
+//$tooltip-border-radius:             $border-radius;
+//$tooltip-padding-y:                 .25rem;
+//$tooltip-padding-x:                 .5rem;
+//$tooltip-margin:                    0;
+//$tooltip-arrow-width:               .8rem;
+//$tooltip-arrow-height:              .4rem;
+//$tooltip-arrow-color:               $tooltip-bg;
+
+// Bootstrap Popovers
+$popover-bg: darken($quaternary_color, 5%);
+//$popover-font-size:                 $font-size-sm;
+//$popover-max-width:                 276px;
+//$popover-border-width:              $border-width;
+//$popover-border-color:              rgba($black, .2);
+//$popover-border-radius:             $border-radius-lg;
+//$popover-box-shadow:                0 .25rem .5rem rgba($black, .2);
+//$popover-header-bg:                 darken($popover-bg, 3%);
+//$popover-header-color:              $headings-color;
+//$popover-header-padding-y:          .5rem;
+//$popover-header-padding-x:          .75rem;
+//$popover-body-color:                $body-color;
+//$popover-body-padding-y:            $popover-header-padding-y;
+//$popover-body-padding-x:            $popover-header-padding-x;
+//$popover-arrow-width:               1rem;
+//$popover-arrow-height:              .5rem;
+//$popover-arrow-color:               $popover-bg;
+//$popover-arrow-outer-color:         fade-in($popover-border-color, .05);
+
+

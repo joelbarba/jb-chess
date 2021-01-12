@@ -1,0 +1,18 @@
+// Add spacing when 2+ components in a row
+jb-btn:not(.block) + jb-btn:not(.block):not([class*="marL"]) { margin-left: 5px; }
+
+jb-checkbox:not(.block) + jb-checkbox:not(.block) { margin-left: 15px; }
+jb-radio:not(.block) + jb-radio:not(.block) { margin-left: 15px; }
+
+// If the label is a link, make it all visually clickable
+a > jb-label label { cursor: pointer; }
+
+// Custom coloring for input placeholders (globally)
+input.form-control {
+  &::-webkit-input-placeholder { color: $input-placeholder-color; } /* WebKit, Blink, Edge */
+  &:-moz-placeholder           { color: $input-placeholder-color; opacity:  1; } /* Mozilla Firefox 4 to 18 */
+  &::-moz-placeholder          { color: $input-placeholder-color; opacity:  1; } /* Mozilla Firefox 19+ */
+  &:-ms-input-placeholder      { color: $input-placeholder-color; } /* Internet Explorer 10-11 */
+  &::-ms-input-placeholder     { color: $input-placeholder-color; } /* Microsoft Edge */
+  &::placeholder               { color: $input-placeholder-color; } /* Most modern browsers support this now. */
+}

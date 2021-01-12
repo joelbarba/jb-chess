@@ -1,0 +1,126 @@
+<div class="panel" [class.is-small]="isSmall" #panel>
+  <!--<div class="left-side" style="opacity: 0">-->
+  <div class="left-side">
+
+    <div class="marks-h" [show]="!reverseBoard"><i>a</i><i>b</i><i>c</i><i>d</i><i>e</i><i>f</i><i>g</i><i>h</i></div>
+    <div class="marks-h" [show]="reverseBoard"> <i>h</i><i>g</i><i>f</i><i>e</i><i>d</i><i>c</i><i>b</i><i>a</i></div>
+    <div class="marks-v" [style.height.px]="boardSize" [show]="!reverseBoard"><i>8</i><i>7</i><i>6</i><i>5</i><i>4</i><i>3</i><i>2</i><i>1</i></div>
+    <div class="marks-v" [style.height.px]="boardSize" [show]="reverseBoard"> <i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i></div>
+
+    <div class="board" *ngIf="game" [style.width.px]="boardSize" [style.height.px]="boardSize">
+      <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
+        <!--{{getPos(pos)}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
+        <!--{{getPos(pos)}}-->
+        <div class="selector"
+             [class.is-selectable]="isSelectable(getPos(pos))"
+             [class.selected]="selPos === getPos(pos)"
+             (click)="selectSquare(getPos(pos))">
+          <span *ngIf="phase === 1 && validMoves.includes(getPos(pos))"
+                class="move-mark" [class.has-piece]="game.board[getPos(pos)] > 0">
+          </span>
+          <img *ngIf="game.board[getPos(pos)] > 0" [src]="store.getPiece(game.board[getPos(pos)]).img">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-side">
+    <div class="game-info">
+      <div class="admin-buttons-row marB15" *ngIf="isAdmin()">
+        <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
+        <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
+      </div>
+      <div class="buttons-row">
+        <jb-btn jbTooltip="view.game.turn" jbIcon="icon-loop" (jbClick)="reverseBoard = !reverseBoard"></jb-btn>
+        <jb-btn *ngIf="isAdmin()" jbTooltip="view.game.analyse" jbIcon="icon-pencil5" (jbClick)="mode = 'analyse'"></jb-btn>
+        <jb-btn *ngIf="isAdmin()" jbTooltip="view.game.prev_move" jbIcon="icon-arrow-left6"></jb-btn>
+        <jb-btn *ngIf="isAdmin()" jbTooltip="view.game.next_move" jbIcon="icon-arrow-right3"></jb-btn>
+        <jb-btn *ngIf="isAdmin()" jbTooltip="view.game.reset" jbIcon="icon-flag7"></jb-btn>
+        <jb-btn *ngIf="isGameOn()" jbTooltip="view.game.finish_tooltip" jbIcon="icon-finish" (jbClick)="finishGame()"></jb-btn>
+        <jb-btn *ngIf="isAdmin()"
+                class="back-btn quaternary marL20" jbTooltip="view.game.back_tooltip"
+                jbIcon="icon-undo2" jbText="view.common.back"
+                (jbClick)="router.navigate(['/games'])">
+        </jb-btn>
+      </div>
+
+      <div class="marT30" *ngIf="game">
+        <div class="d-flex">
+          <h2 class="flex-1 text-center">{{game.playerName1}}</h2>
+          <h2 class="flex-1 text-center">{{game.playerName2}}</h2>
+        </div>
+        <div class="d-flex">
+          <h4 class="flex-1 text-center">(WHITE)</h4>
+          <h4 class="flex-1 text-center">(BLACK)</h4>
+        </div>
+        <div class="d-flex game-points">
+          <h4 class="flex-1 text-center">{{ wTime$ | async }}</h4>
+          <h4 class="flex-1 text-center">{{ bTime$ | async }}</h4>
+        </div>
+        <div class="d-flex game-points marB10">
+          <span class="flex-1 text-center">{{ getPoints('WHITE') }}</span>
+          <span class="flex-1 text-center">{{ getPoints('BLACK') }}</span>
+        </div>
+        <div class="d-flex">
+          <div class="taken-pieces">
+            <img *ngFor="let piece of getTakenPieces('BLACK')" [src]="piece?.img">
+          </div>
+          <div class="taken-pieces">
+            <img *ngFor="let piece of getTakenPieces('WHITE')" [src]="piece?.img">
+          </div>
+        </div>
+        <!--<p *ngIf="game?.status === yourColor">{{game.playerName1}} ({{yourColor}}) play</p>-->
+      </div>
+    </div>
+
+
+
+    <div class="tab-headers" *ngIf="game">
+      <div class="tab-header" [class.selected]="tab === 'moves'" (click)="changeTab('moves')" translate>views.game.tabs.moves</div>
+      <div class="tab-header" [class.selected]="tab === 'chat'"  (click)="changeTab('chat')"  translate>views.game.tabs.chat</div>
+      <div class="tab-header" [class.selected]="tab === 'video'" (click)="changeTab('video')" translate>views.game.tabs.video</div>
+    </div>
+    <div class="tab-body" *ngIf="game" [class.video]="tab === 'video'" [class]="getVideoStatusClass()">
+      <div *ngIf="tab === 'moves'">
+        <div *ngIf="game?.history" style="font-family: monospace">
+          <div *ngFor="let move of game.history.slice().reverse(); let ind = index">
+            {{game.history.length - ind}} - {{ move.note }} - posOri={{move.posOri}}, posDes={{move.posDes}}
+            <span> - ({{move.piece.color}})</span>
+            <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="tab === 'chat'">
+        <div *ngIf="game?.chat">
+          <p *ngFor="let msg of game.chat">
+            <span>{{msg.owner === yourColor ? '(me): ' : '(' + (yourColor === 'WHITE' ? game.playerName2 : game.playerName1) + '): ' }}</span>
+            <span>{{msg.text}}</span>
+          </p>
+        </div>
+      </div>
+      <div *ngIf="tab === 'video'" [jbLoadingSpinner]="getVideoStatusClass() === 'connecting'">
+        <div class="video-buttons">
+          <jb-btn *ngIf="!video.localStream" jbText="Turn Camera On" (jbClick)="video.initMedia()"></jb-btn>
+          <jb-btn *ngIf="video.videoStatus !== ''" jbText="Hang Up" (jbClick)="video.hangup()"></jb-btn>
+          <jb-btn *ngIf="video.videoStatus === ''" jbText="Make Call" (jbClick)="video.makeCall()"></jb-btn>
+          <jb-btn *ngIf="canAnswerCall()" jbText="Answer Call" (jbClick)="video.answerCall()"></jb-btn>
+          <jb-label class="padL15 value-inline" jbText="Status" [jbValue]="video.statusText"></jb-label>
+        </div>
+        <video class="local-video"  playsinline autoplay muted [srcObject]="video.localStream"></video>
+        <video class="remote-video" playsinline autoplay       [srcObject]="video.remoteStream"></video>
+      </div>
+    </div>
+    <div class="tab-footer">
+      <div class="chat-input-row" *ngIf="tab === 'chat'">
+        <jb-input class="flat w-100 padR10" [jbAutoFocus]="true" [(ngModel)]="chatInput" (jbOnEnter)="sendMsg()"></jb-input>
+        <jb-btn jbType="update-icon" (jbClick)="sendMsg()"></jb-btn>
+      </div>
+      <div class="marH5">{{getStatusText()}}</div>
+    </div>
+
+
+  </div>
+</div>
+
+

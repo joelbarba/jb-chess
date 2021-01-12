@@ -1,0 +1,63 @@
+<div class="whiteBg">
+  <form #loginForm="ngForm">
+    <div class="row pad15">
+
+      <div class="col-12 padB50">
+        <h1 class="login-text text-center" translate>view.login.text</h1>
+        <hr>
+      </div>
+
+      <!--Email-->
+      <jb-input class="col-12" [(ngModel)]="email" name="email"
+                jbPlaceholder="view.common.email"
+                jbType="email"
+                [jbRequired]="true"
+                [jbAutoFocus]="true"
+                (jbOnEnter)="profile.login(email, password)">
+      </jb-input>
+
+      <!--Password-->
+      <jb-input class="col-12" name="pass"
+                [(ngModel)]="password"
+                jbPlaceholder="view.common.password"
+                jbErrorPos="none"
+                jbType="password"
+                [jbRequired]="true"
+                (jbOnEnter)="profile.login(email, password)">
+      </jb-input>
+
+      <!--Log in button-->
+      <jb-btn class="col-12 full-width"
+              jbText="view.login.log_in_btn"
+              jbType="update"
+              [jbDisabled]="loginForm.invalid"
+              [jbAsyncPromise]="loggingPromise"
+              (jbClick)="profile.login(email, password)">
+      </jb-btn>
+
+
+      <!--Create new user-->
+      <!--<div class="col-12 padT30 text-center col-sm-5 text-sm-left">-->
+      <!--  <a class="forgot-pw" [routerLink]="['/login/sign']">-->
+      <!--    <span class="icon-lock"></span>-->
+      <!--    <span class="marL5" translate>view.login.new_user</span>-->
+      <!--  </a>-->
+      <!--</div>-->
+
+      <!--<a [routerLink]="['/game/QB5oucCMlyLmWiA1aa1D/pLps08oWglVdyWvcQ01ZBRcoHaE3']">GO TO GAME</a>-->
+
+      <!--Forgot password link-->
+      <!--<div class="col-12 text-center col-sm-5 text-sm-left padT10">-->
+      <!--  <a class="forgot-pw" href="#">-->
+      <!--    <span class="icon-lock"></span>-->
+      <!--    <span class="marL5" translate>view.login.reset_forgotten_password</span>-->
+      <!--  </a>-->
+      <!--</div>-->
+
+      <!--Language selector-->
+      <!--<jb-language-selector class="col-12 col-sm-7 language-selector"></jb-language-selector>-->
+
+    </div>
+
+  </form>
+</div>
