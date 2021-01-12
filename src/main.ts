@@ -10,3 +10,9 @@ if (environment.production) {
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
+
+import 'bootstrap';
+
+// Initialize prototypes
+import {JbPrototypes} from 'jb-ui-lib';
+JbPrototypes.run();  // Extend all common prototypes

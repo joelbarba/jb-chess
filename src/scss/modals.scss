@@ -1,0 +1,38 @@
+// Styles for modals
+
+$modal-ani-time: 0.15s;
+
+ngb-modal-window {
+  transition-property: transform, opacity;
+  animation: $modal-ani-time ease-out modal-falling-ani;
+  @keyframes modal-falling-ani {
+    from { transform: translateY(-250px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-dialog {
+    margin-top: calc(#{$navbar-height} + 5px);
+    .modal-header {
+      padding: 25px 30px;
+      button.close { outline: none; }
+      .modal-title { font-size: 24px; }
+    }
+    .modal-body {
+      padding: 25px 30px;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}
+
+ngb-modal-backdrop {
+  transition-property: opacity;
+  animation: $modal-ani-time ease-out modal-backdrop-fade-in;
+  @keyframes modal-backdrop-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 0.5; }
+  }
+}
+
+
+//.modal-backdrop { z-index: $zindex-modal-backdrop !important; } // Override ngb default

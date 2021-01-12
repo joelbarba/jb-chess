@@ -1,0 +1,83 @@
+// ----------------------------------------------------------------------------
+// Bootstrap offers classes p-1,... p-5, m-1, mt-2, etc
+// We define our own here (we do not override bootstrap, so both can be used)
+
+// Generate padding classes (pad, padL, padR, padT, padB, padH, padV)
+//  pad5,  10, ... pad50     (all)
+//  padH5, 10, ... padH50    (left + right)
+//  padV5, 10, ... padV50    (top + bottom)
+//  padT5, 10, ... padT50    (top)
+//  padB5, 10, ... padB50    (bottom)
+//  padL5, 10, ... padL50    (left)
+//  padR5, 10, ... padR50    (right)
+@for $ind from 0 through 20 {
+  .pad#{$ind * 5}  { padding: #{$ind * 5}px; }
+  .padL#{$ind * 5} { padding-left   : #{$ind * 5}px; }
+  .padR#{$ind * 5} { padding-right  : #{$ind * 5}px; }
+  .padT#{$ind * 5} { padding-top    : #{$ind * 5}px; }
+  .padB#{$ind * 5} { padding-bottom : #{$ind * 5}px; }
+  .padH#{$ind * 5} { padding-left: #{$ind * 5}px; padding-right : #{$ind * 5}px; }
+  .padV#{$ind * 5} { padding-top : #{$ind * 5}px; padding-bottom: #{$ind * 5}px; }
+}
+
+// Generate margin classes (mar, marL, marR, marT, marB, marH, marV)
+//  mar5,  10, ... mar50     (all)
+//  marH5, 10, ... marH50    (left + right)
+//  marV5, 10, ... marV50    (top + bottom)
+//  marT5, 10, ... marT50    (top)
+//  marB5, 10, ... marB50    (bottom)
+//  marL5, 10, ... marL50    (left)
+//  marR5, 10, ... marR50    (right)
+@for $ind from 0 through 20 {
+  .mar#{$ind * 5}  { margin: #{$ind * 5}px; }
+  .marL#{$ind * 5} { margin-left   : #{$ind * 5}px; }
+  .marR#{$ind * 5} { margin-right  : #{$ind * 5}px; }
+  .marT#{$ind * 5} { margin-top    : #{$ind * 5}px; }
+  .marB#{$ind * 5} { margin-bottom : #{$ind * 5}px; }
+  .marH#{$ind * 5} { margin-left: #{$ind * 5}px; margin-right : #{$ind * 5}px; }
+  .marV#{$ind * 5} { margin-top : #{$ind * 5}px; margin-bottom: #{$ind * 5}px; }
+}
+.padCL { padding-top: 8px; }   // To align input + checkbox
+.padBL { padding-top: 22px; }  // To align input + button
+
+// Generate different flex sizes (short for flex-N)
+@for $ind from 1 through 10 { .flex-#{$ind} { flex: #{$ind}; }}
+
+
+@each $color, $value in $jb-ui-lib-colors {
+  .#{$color}-color { color: $value; }    // Create "primary-color", "secondary-color", ...
+  .#{$color}-bg { background: $value; }  // Create "primary-bg",    "secondary-bg", ...
+}
+
+
+.bold { font-weight: bold; }
+.pointer { cursor: pointer; }
+.btn-col { margin-top: -4px; }  // When button next to inputs, pull it up to aling text
+.text-br { white-space: pre-line; } // Makes the line breaks in the text break the line in the view
+.hidden { display: none; }
+.tip-text { color: $primary_color; font-style: italic; }
+.center {
+  justify-content: center;
+  text-align: center;
+}
+.center-icon {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.ellipsis {
+  display: inline;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.col-0 { // helper to show cols only for bigger resolutions. Eg:  class="col-0 col-lg-3"
+  @extend .d-none;
+  &[class*="col-sm-"] { @extend .d-xl-block; @extend .d-lg-block; @extend .d-md-block; @extend .d-sm-block; }
+  &[class*="col-md-"] { @extend .d-xl-block; @extend .d-lg-block; @extend .d-md-block; }
+  &[class*="col-lg-"] { @extend .d-xl-block; @extend .d-lg-block; }
+  &[class*="col-xl-"] { @extend .d-xl-block; }
+}
+

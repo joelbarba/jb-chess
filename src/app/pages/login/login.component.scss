@@ -1,0 +1,70 @@
+@import 'src/scss/config/variables';
+
+.login-wrapper {
+
+  // Keep the footer at the bottom, and scroll if no room
+  height: calc(100vh - 102px);
+  min-height: 780px;
+
+  font-size: 14px;
+  color: $text-color;
+
+  .login-box {
+    width: 450px;
+    height: 432px;
+    //position: absolute;
+    margin: 5% calc(50% - 225px);
+
+    @media screen and (max-width: 500px) {
+      width: 100%;
+      margin: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .panel-heading {
+      padding: 10px 15px;
+      .login-text {
+        color: $text-color;
+        .gold-bold-text {
+          margin-left: 10px;
+          font-weight: 600;
+          color: $primary_color;
+        }
+      }
+    }
+
+    .panel-body {
+      padding: 45px 15px 15px;
+      .login-with:hover { color: $primary_color; }
+      .social-login-options {
+        overflow: hidden;
+        transition-timing-function: cubic-bezier(0.20, 0.95, 0.65, 1);
+        transition: height 0.25s;
+        height: 70px;
+        &.is-collapsed { height: 0; }
+      }
+
+      .language-selector {
+        text-align: right;
+        @media screen and (max-width: 767px) {
+          padding-top: 15px;
+          text-align: center;
+        }
+      }
+    }
+
+
+    // Expose an animation when autofill is triggered, to be hooked up in JS through 'animationstart' event
+    @keyframes onAutoFillStart {
+      0%   { transform: translateX(0); }
+      50%  { transform: translateX(100px); }
+      100% { transform: translateX(0); }
+    }
+    input:-webkit-autofill {
+      animation: onAutoFillStart 5.05s ease-in-out 0s;
+      transform: translateX(0);
+    }
+
+  }
+}

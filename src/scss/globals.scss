@@ -1,0 +1,45 @@
+@import 'config/variables';
+
+
+// ------- White Boxes -----------------------
+.whiteBg {
+  padding: 25px;
+  margin: 15px 0;
+  background-color: $white;
+  box-shadow: 0 1px 2px rgba(34,36,38,.15);
+  border-radius: 3px;
+
+  .modal-body {
+    background-color: transparent;
+    padding: 0;
+    &:first-child { margin-top: 0; }
+    &:last-child { margin-bottom: 0; }
+  }
+
+  &.row {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+// ------- Global link style (override bootstrap style) -----------------------
+a, .pointer, [href], [routerLink] {
+  cursor: pointer;
+  color: $primary_color;
+  &:hover, &:active {
+    color: darken($primary_color, 5%);
+    text-decoration: none; // Remove underline on hover
+  }
+  &:focus {
+    color: darken($primary_color, 5%);
+  }
+  &.warning-text { &:hover, &:focus, &:active { color: $warning_color; }}
+}
+
+
+
+
+
+
+
+

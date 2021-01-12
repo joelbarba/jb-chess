@@ -1,0 +1,27 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/home"><img src="assets/logo.png?v=0.1"></a>
+  </div>
+
+  <div class="navbar-content">
+
+    <!--Notifications-->
+    <div class="nav-item">
+      <span class="icon-bell2"></span>
+    </div>
+
+    <!--Help link -->
+    <div class="nav-item nav-help-link">
+      <a href="#" target="_blank">
+        <span class="icon-question4"></span>
+      </a>
+    </div>
+
+    <!--Log out-->
+    <div class="nav-item" (click)="logOut()">
+      <span class="icon-switch"></span>
+    </div>
+
+
+  </div>
+</nav>

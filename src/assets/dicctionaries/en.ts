@@ -1,0 +1,15 @@
+export const enDic = {
+  'tag.title'                                             : 'App Title',
+  'page.label.login'                                      : 'Login',
+  'page.label.home'                                       : 'Home',
+  'scripts.common.oauth.interceptor.connection_error'     : 'Error',
+  'scripts.common.oauth.interceptor.forbidden'            : 'Forbidden',
+  'scripts.common.oauth.interceptor.internal_server_error': 'Internal Error',
+  'scripts.common.oauth.interceptor.service_unavailable'  : 'Service Unavailable',
+  'scripts.common.oauth.interceptor.bad_request_error'    : 'Bad Request',
+  'view.login.text'                                       : 'Login',
+  'view.common.username'                                  : 'Username',
+  'view.common.password'                                  : 'Password',
+  'view.login.log_in_btn'                                 : 'Login',
+  'view.login.reset_forgotten_password'                   : 'Forgot Password?',
+};

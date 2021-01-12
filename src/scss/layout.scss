@@ -1,0 +1,8 @@
+// Styles for the main layout
+
+$page-padding: 45px;  // horizontal padding of the pages (routes)
+
+.route-container {
+  height: 100%;
+  padding: calc(#{$navbar-height} + 15px) #{$page-padding} 15px 85px;
+}
