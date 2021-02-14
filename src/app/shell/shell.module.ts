@@ -6,6 +6,7 @@ import {CoreModule} from 'src/app/core/core.module';
 import {PageNotFoundComponent} from './page-not-found/page-not-found.component';
 import {LoginModule} from '../pages/login/login.module';
 import {HomeModule} from '../pages/home/home.module';
+import {ProfileComponent} from './profile/profile.component';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import {HomeModule} from '../pages/home/home.module';
     MenuComponent,
     FooterComponent,
     PageNotFoundComponent,
+    ProfileComponent,
   ],
   imports: [
     CoreModule,
@@ -27,6 +29,7 @@ import {HomeModule} from '../pages/home/home.module';
     NavbarComponent,
     MenuComponent,
     FooterComponent,
+    ProfileComponent,
     LoginModule,
     HomeModule,
   ],

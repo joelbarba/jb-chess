@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { Store } from '@ngxs/store';
 import { TestScheduler } from 'rxjs/testing';
 
-import { TestingModule } from 'src/testing-module';
 import { NavbarComponent } from './navbar.component';
 
 describe('NavbarComponent', () => {

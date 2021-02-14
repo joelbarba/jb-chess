@@ -1,6 +1,3 @@
 <h1>Home</h1>
-<div class="row">
-  <jb-input class="col-6" jbLabel="First Name" [(ngModel)]="user.firstName"></jb-input>
-  <jb-checkbox class="col-3" jbLabel="Enabled" [(ngModel)]="user.enabled"></jb-checkbox>
-  <jb-btn class="col-3" jbText="Click Me" jbType="update"></jb-btn>
-</div>
+
+Items: {{ items$ | async | json }}

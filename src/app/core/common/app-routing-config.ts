@@ -1,12 +1,13 @@
 import {Route} from '@angular/router';
 import {LoginComponent} from '../../pages/login/login.component';
 import {HomeComponent} from '../../pages/home/home.component';
+import {SignInComponent} from '../../pages/login/sign-in/sign-in.component';
 
 export interface IJbRoutes extends Route {
   data ?: {
-    label         : string;   // Label of the page (to show on the menu / tab title)
-    requireLogin  ?: boolean; // Whether the page is accessible without login (false). By default = true (requires login)
-    permission    ?: string;  // Permission you need to access the page. If no present, no validation
+    label        : string;  // Label of the page (to show on the menu / tab title)
+    noLogin     ?: boolean; // Whether the page is accessible without login (true). By default = false (requires login)
+    permission  ?: string;  // Permission you need to access the page. If no present, no validation
   };
 }
 
@@ -19,15 +20,18 @@ export interface IJbRoutes extends Route {
 export const routes: Array<IJbRoutes> = [
   { path: '', redirectTo: '/home', pathMatch: 'full', data: { label: '-' }},
 
-  { path: 'login', component: LoginComponent, data: { label: 'page.label.login', requireLogin: false, } },
-  { path: 'home',  component: HomeComponent,  data: { label: 'page.label.home', } },
+  { path: 'login',      component: LoginComponent,  data: { label: 'page.label.login', noLogin: true, }},
+  { path: 'login/sign', component: SignInComponent, data: { label: 'view.login.sign_in', noLogin: false, }},
+  { path: 'home',       component: HomeComponent,   data: { label: 'page.label.home', permission: 'any' } },
 
 
   // Lazy loaded pages:
 
-  { path: 'page1',
+  { path: 'page1', data: { label: 'page.label.xxxxx', permission: 'any' },
     loadChildren: () => import('src/app/pages/page1/page1.module').then(mod => mod.Page1Module),
-    data: { label: 'page.label.xxxxx', permission: 'xxxxx' }
+  },
+  { path: 'page2', data: { label: 'page.label.xxxxx', permission: 'any' },
+    loadChildren: () => import('src/app/pages/page2/page2.module').then(mod => mod.Page2Module),
   },
 
 ]; // RouteEnd

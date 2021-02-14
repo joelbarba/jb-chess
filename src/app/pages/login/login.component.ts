@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+import {AngularFireAuth} from '@angular/fire/auth';
+import {JbGrowlService} from 'jb-ui-lib';
+import {JbProfileService} from '../../core/common/jb-profile.service';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 
 @Component({
@@ -8,35 +12,25 @@ import {Router} from '@angular/router';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  public username = '';
+  public email = '';
   public password = '';
-  public selLang: { code, default_language, name };  // Selected locale
   public loggingPromise;  // Promise to disable the form while logging
-  public forceBtnEnabled = false;
 
   constructor(
+    public profile: JbProfileService,
     private router: Router,
-  ) {
-  }
+    private afAuth: AngularFireAuth,
+    private growl: JbGrowlService,
+    private afs: AngularFirestore
+  ) {}
 
   ngOnInit() {
 
     // If logged in, redirect to dashboard directly
-    // this.oauth.getProfilePromise().then(() => {
-    //   if (!!this.oauth.profile) { this.router.navigate(['/home']); }
-    // });
-
-    // this.jbTranslate.languagesPromise.then(langs => {
-    //   this.selLang = langs.getByProp('code', this.translate.currentLang);
-    // });
+    this.profile.ready.then(() => {
+      if (this.profile.isLoggedIn) { this.router.navigate(['/home']); }
+    })
   }
 
-  public logIn = ($event) => {
-    $event.stopPropagation();
-    $event.preventDefault(true);
-    // this.loggingPromise = this.oauth.requestLogin(this.username, this.password).then(() => {
-    //   this.router.navigate(['/home']);
-    // }, (err) => { this.growl.error('Invalid user or password'); });
-  };
 
 }

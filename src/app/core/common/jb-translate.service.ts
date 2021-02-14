@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {AbstractTranslateService, JbLoadingBarService} from 'jb-ui-lib';
 import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 // Locale configs

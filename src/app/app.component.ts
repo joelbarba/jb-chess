@@ -3,6 +3,7 @@ import {NgbTooltipConfig} from '@ng-bootstrap/ng-bootstrap';
 import {Title} from '@angular/platform-browser';
 import {ActivationEnd, NavigationStart, Router} from '@angular/router';
 import {JbTranslateService} from './core/common/jb-translate.service';
+import {JbProfileService} from './core/common/jb-profile.service';
 import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
 
 @Component({
@@ -12,6 +13,7 @@ import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
 })
 export class AppComponent {
   constructor(
+    public profile: JbProfileService,
     private ngbTooltip: NgbTooltipConfig,
     private titleService: Title,
     private router: Router,

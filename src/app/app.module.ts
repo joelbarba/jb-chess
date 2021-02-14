@@ -8,23 +8,31 @@ import {ShellModule} from './shell/shell.module';
 import {NgxsModule} from '@ngxs/store';
 import {NgxsSelectSnapshotModule} from '@ngxs-labs/select-snapshot';
 import {NgxsReduxDevtoolsPluginModule} from '@ngxs/devtools-plugin';
-import {AllStates} from "./core/store/all-states";
+import {AllStates} from './core/store/all-states';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateLoader, TranslateModule, TranslateParser} from '@ngx-translate/core';
 import {JbTranslateLoader} from './core/common/jb-translate-loader.service';
 import {JbTranslateService} from './core/common/jb-translate.service';
 import {JbUiLibModule} from 'jb-ui-lib';
-
+import {AngularFireModule} from '@angular/fire';
+import {AngularFirestoreModule} from '@angular/fire/firestore';
+import {AngularFireAuthModule} from '@angular/fire/auth';
+import {AngularFireStorageModule} from '@angular/fire/storage';
 import {registerLocaleData} from '@angular/common';
 import localeEnUS from '@angular/common/locales/en-US-POSIX';
+import {AngularFireDatabaseModule} from '@angular/fire/database';
 registerLocaleData(localeEnUS, 'en');  // Default locale
-
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig, 'jb-chess'), // imports firebase
+    AngularFirestoreModule,   // imports firebase/firestore, only needed for database features
+    AngularFireAuthModule,    // imports firebase/auth, only needed for auth features,
+    AngularFireStorageModule, // imports firebase/storage only needed for storage features
+    AngularFireDatabaseModule,  // imports fire store
     NgxsModule.forRoot(AllStates, { developmentMode: !environment.production }),
     NgxsSelectSnapshotModule.forRoot(),
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
@@ -35,7 +43,6 @@ registerLocaleData(localeEnUS, 'en');  // Default locale
     ShellModule,
   ],
   providers: [
-    // { provide: ErrorHandler, useClass: JbErrorHandler },
     { provide: LOCALE_ID, useValue: 'en' },
   ],
   bootstrap: [AppComponent]

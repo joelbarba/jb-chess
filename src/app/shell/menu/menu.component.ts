@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivationEnd, Router} from '@angular/router';
 import {SubSink} from 'subsink';
-import {ActivationEnd, Router, RouterEvent} from '@angular/router';
 import {filter} from 'rxjs/operators';
 
 @Component({
@@ -13,6 +13,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   public menuEntries = [
     { id: 1, path: 'home',  icon: 'icon-home', isActive: false },
     { id: 2, path: 'page1', icon: 'icon-info', isActive: false },
+    { id: 3, path: 'page2', icon: 'icon-user', isActive: false },
     // ...
     // ...
   ];

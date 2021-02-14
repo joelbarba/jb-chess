@@ -1,6 +1,5 @@
 // Add spacing when 2+ components in a row
 jb-btn:not(.block) + jb-btn:not(.block):not([class*="marL"]) { margin-left: 5px; }
-jb-btn.block + jb-btn.block { margin-top: 5px; }
 
 jb-checkbox:not(.block) + jb-checkbox:not(.block) { margin-left: 15px; }
 jb-radio:not(.block) + jb-radio:not(.block) { margin-left: 15px; }

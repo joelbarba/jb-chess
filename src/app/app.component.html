@@ -4,7 +4,8 @@
 
 <!--Shell elements-->
 <app-navbar></app-navbar>
-<app-menu></app-menu>
+<app-menu *ngIf="profile.isLoggedIn"></app-menu>
+<app-profile *ngIf="profile.isLoggedIn"></app-profile>
 
 <!--Routing container-->
 <div class="container-fluid route-container">
