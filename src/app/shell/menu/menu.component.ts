@@ -11,9 +11,9 @@ import {filter} from 'rxjs/operators';
 export class MenuComponent implements OnInit, OnDestroy {
   private subs = new SubSink();
   public menuEntries = [
-    { id: 1, path: 'home',  icon: 'icon-home', isActive: false },
-    { id: 2, path: 'page1', icon: 'icon-info', isActive: false },
-    { id: 3, path: 'page2', icon: 'icon-user', isActive: false },
+    { id: 1, path: 'home',  icon: 'icon-home',    isActive: false },
+    { id: 2, path: 'games', icon: 'icon-finish',  isActive: false },
+    { id: 3, path: 'page2', icon: 'icon-user',    isActive: false },
     // ...
     // ...
   ];

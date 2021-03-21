@@ -71,7 +71,10 @@ export class JbProfileService {
     return this.user.fireBaseUser.updateProfile({ displayName });
   }
 
-  public toggleProfile = () => {
-    this.isPanelExp$.pipe(take(1)).subscribe(isExp => this.isPanelExp$.next(!isExp));
+  public toggleProfile = (value?) => {
+    this.isPanelExp$.pipe(take(1)).subscribe(isExp => {
+      if (value === undefined) { value = !isExp; }
+      if (value !== isExp) { this.isPanelExp$.next(value); }
+    });
   }
 }

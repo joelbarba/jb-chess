@@ -1,0 +1,21 @@
+<h1>
+  <span translate>view.common.game</span>:
+  <span *ngIf="game">{{ game.playerName1 + ' vs ' + game.playerName2 }}</span>
+</h1>
+
+<div *ngIf="game">
+  <div class="board">
+    <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
+      <!--{{pos}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
+      <div class="selector"
+           [class.is-selectable]="isSelectable(pos)"
+           [class.selected]="selPos === pos"
+           (click)="selectSquare(pos)">
+        <span *ngIf="phase === 1 && validMoves.includes(pos)">X</span>
+        <img *ngIf="game.board[pos] > 0" [src]="store.getPiece(game.board[pos]).img">
+      </div>
+    </div>
+  </div>
+</div>
+
+phase={{phase}}

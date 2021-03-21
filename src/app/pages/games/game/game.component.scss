@@ -1,0 +1,38 @@
+@import 'variables';
+
+.board {
+  width: 800px;
+  height: 800px;
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid black;
+  border-radius: 2px;
+  cursor: pointer;
+  .square {
+    width: 12.5%;
+    height: 12.5%;
+    display: inline-block;
+    &.white { background: white; }
+    &.black { background: darken($primary_color, 10%); }
+    .selector{
+      border: 3px solid transparent;
+      height: 100%;
+      position: relative;
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      &.selected {
+        border: 3px solid rgba($secondary_color, 1);
+        background: rgba($secondary_color, 0.6);
+      }
+      &.is-selectable:hover {
+        border: 3px solid rgba($secondary_color, 1);
+        background: rgba($secondary_color, 0.3);
+      }
+    }
+  }
+}

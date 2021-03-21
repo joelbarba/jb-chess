@@ -21,14 +21,14 @@ export const routes: Array<IJbRoutes> = [
   { path: '', redirectTo: '/home', pathMatch: 'full', data: { label: '-' }},
 
   { path: 'login',      component: LoginComponent,  data: { label: 'page.label.login', noLogin: true, }},
-  { path: 'login/sign', component: SignInComponent, data: { label: 'view.login.sign_in', noLogin: false, }},
+  { path: 'login/sign', component: SignInComponent, data: { label: 'view.login.sign_in', noLogin: true, }},
   { path: 'home',       component: HomeComponent,   data: { label: 'page.label.home', permission: 'any' } },
 
 
   // Lazy loaded pages:
 
-  { path: 'page1', data: { label: 'page.label.xxxxx', permission: 'any' },
-    loadChildren: () => import('src/app/pages/page1/page1.module').then(mod => mod.Page1Module),
+  { path: 'games', data: { label: 'view.games.title', permission: 'any' },
+    loadChildren: () => import('src/app/pages/games/games.module').then(mod => mod.GamesModule),
   },
   { path: 'page2', data: { label: 'page.label.xxxxx', permission: 'any' },
     loadChildren: () => import('src/app/pages/page2/page2.module').then(mod => mod.Page2Module),
