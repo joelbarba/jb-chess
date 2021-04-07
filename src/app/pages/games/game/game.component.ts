@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {StoreService} from "@core/store/store.service";
+import {EGameStatus, StoreService} from "@core/store/store.service";
+import {JbProfileService} from "@core/common/jb-profile.service";
 
 @Component({
   selector: 'jb-game',
@@ -11,15 +12,16 @@ export class GameComponent implements OnInit, OnDestroy {
   public gameId;
   public game;
   public sub;
+  public yourColor: 'WHITE' | 'BLACK';
   public phase = 0; // 0=select piece, 1=select destination
-  public selPos;    // Selected position
-  public selPiece;  // Selected piece
+  public selPos;    // Position of the selected piece (to move)
   public validMoves = []; // Valid destination nums for the selected piece
 
   public squares = Array.from({ length: 64 }, (x, i) => i);
 
   constructor(
     public store: StoreService,
+    public profile: JbProfileService,
     private route: ActivatedRoute,
   ) {
   }
@@ -30,39 +32,57 @@ export class GameComponent implements OnInit, OnDestroy {
     // this.store.getGame(this.gameId).then(game => this.game = game);
     this.sub = this.store.getGame$(this.gameId).subscribe(game => {
       console.log('New change on the game', game);
-      this.game = game;
+      this.game = { ...game, id: this.gameId };
+      this.yourColor = game.player1 === this.profile.user.id ? 'WHITE' : 'BLACK';
     });
   }
 
   ngOnDestroy() { this.sub.unsubscribe(); }
 
+
+  public resetGame = () => {
+    this.store.resetGame(this.game);
+    this.store.updateGame(this.game);
+  }
+
+  public revertLast = () => {
+    const history = [...this.game.history];
+    this.store.resetGame(this.game);
+    history.pop();
+    history.forEach(move => this.store.makeMove(this.game, move.posOri, move.posDes));
+    this.store.updateGame(this.game).then(() => this.clearPhase());
+  }
+
+  private clearPhase = () => {
+    this.selPos = null;
+    this.validMoves = [];
+    this.phase = 0;
+  }
+  private selectPiece = (pos) => {
+    this.selPos = pos;
+    this.validMoves = this.store.getValidMoves(this.game, pos);
+    this.phase = 1;
+  };
+
   public selectSquare = (pos) => {
-    if (this.phase === 0) {  // Select piece
-      this.selPos = pos;
-      this.selPiece = this.store.getPiece(this.game.board[pos]);
-      this.validMoves = this.store.getValidMoves(pos, this.game.board);
-      this.phase = 1;
+    if (this.yourColor !== this.game.status) { return console.log('NOT YOUR TURN, PLEASE WAIT'); }
 
-    } else { // Select destination
-      const piece = this.store.getPiece(this.game.board[pos]);
-      if (piece.color === 'white') { // Selecting another of your pieces (switch selection)
-        this.selPos = pos;
-        this.selPiece = this.store.getPiece(this.game.board[pos]);
-        this.validMoves = this.store.getValidMoves(pos, this.game.board);
+    if (this.phase === 0) { // Select a piece to move
+      if (this.isYourPiece(pos)) { this.selectPiece(pos); }
 
-      } else {
-        if (this.validMoves.includes(pos) || true) { // Make the move
-          this.game.board[pos] = this.game.board[this.selPos];
-          this.game.board[this.selPos] = 0;
-          this.selPos = null;
-          this.selPiece = null;
-          this.phase = 0;
-        }
+    } else {  // Select destination
+      if (this.selPos === pos) { return this.clearPhase(); }  // unselect the same piece
+
+      const pieceAtPos = this.store.getPiece(this.game.board[pos]);
+      if (pieceAtPos.color === this.yourColor) { this.selectPiece(pos); } // Selecting another of your pieces (switch selection)
+      if (pieceAtPos.color !== this.yourColor) {
+        this.store.commitMove(this.game, this.selPos, pos).then(() => this.clearPhase());
       }
     }
   };
 
   public isSelectable = (pos) => {
+    if (this.yourColor !== this.game?.status) { return false; }
     if (this.phase === 0) { return this.isYourPiece(pos); } // Select piece
     if (this.phase === 1) { return this.isYourPiece(pos) || this.validMoves.includes(pos); } // Select destination
   };
@@ -70,7 +90,9 @@ export class GameComponent implements OnInit, OnDestroy {
   public isYourPiece = (pos) => {
     if (this.game.board[pos] === 0) { return false; }
     const piece = this.store.getPiece(this.game.board[pos]);
-    return piece.color === 'white';
+    return piece.color === this.yourColor;
   }
+
+
 
 }

@@ -45,11 +45,13 @@ export class StoreService {
   public gamesCol: AngularFirestoreCollection<IGameDoc>;
   public games$: Observable<IGameDoc[]>;
 
-  public getValidMoves = (pos, board) => {
-    console.log(pos, board);
+  public getValidMoves = (game, pos) => {
+    const board = game.board;
     const piece = this.getPiece(board[pos]);
     const [col, row] = this.square2D(pos);
     const validMoves = [];
+    const yourColor = piece.color;
+    const otherColor = piece.color === 'WHITE' ? 'BLACK' : 'WHITE';
 
     // Returns an object with the piece at that position + helpers
     const pieceAt = (col, row) => {
@@ -59,8 +61,8 @@ export class StoreService {
       const piece = this.getPiece(code);
       return { pos, code, piece,
         isEmpty: () => isIn && code === 0,
-        isWhite: () => isIn && piece.color === 'white',
-        isBlack: () => isIn && piece.color === 'black',
+        isYours: () => isIn && piece?.color === yourColor,
+        isOther: () => isIn && piece?.color === otherColor,
         is: (values) => {
           if (!isIn) { return false; }
           if (values.includes('empty') && code === 0) { return true; }
@@ -80,32 +82,66 @@ export class StoreService {
       return piece;
     };
 
+    if (piece.name === 'knight' && piece.color === yourColor) {
+      addMoveIf(col - 1, row - 2, ['empty', otherColor]);
+      addMoveIf(col + 1, row - 2, ['empty', otherColor]);
+      addMoveIf(col - 2, row - 1, ['empty', otherColor]);
+      addMoveIf(col + 2, row - 1, ['empty', otherColor]);
+      addMoveIf(col - 2, row + 1, ['empty', otherColor]);
+      addMoveIf(col - 1, row + 2, ['empty', otherColor]);
+      addMoveIf(col + 2, row + 1, ['empty', otherColor]);
+      addMoveIf(col + 1, row + 2, ['empty', otherColor]);
+    }
+    if ((piece.name === 'queen' || piece.name === 'rook') && piece.color === yourColor) {
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col, row - t, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col, row + t, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row, ['empty', otherColor]).isEmpty()) { break; } }
+    }
+    if ((piece.name === 'queen' || piece.name === 'bishop') && piece.color === yourColor) {
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row - t, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row + t, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row - t, ['empty', otherColor]).isEmpty()) { break; } }
+      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row + t, ['empty', otherColor]).isEmpty()) { break; } }
+    }
+    if (piece.name === 'king' && piece.color === yourColor) {
+      addMoveIf(col - 1, row - 1, ['empty', otherColor]);
+      addMoveIf(col,     row - 1, ['empty', otherColor]);
+      addMoveIf(col + 1, row - 1, ['empty', otherColor]);
+      addMoveIf(col - 1, row,     ['empty', otherColor]);
+      addMoveIf(col + 1, row,     ['empty', otherColor]);
+      addMoveIf(col - 1, row + 1, ['empty', otherColor]);
+      addMoveIf(col,     row + 1, ['empty', otherColor]);
+      addMoveIf(col + 1, row + 1, ['empty', otherColor]);
+    }
 
-    if (piece.name === 'pawn' && piece.color === 'white') {
-      if (pieceAt(col, row - 1).isEmpty()) { addMove(col, row - 1); }  // Advance 1
+    // En Passant (Pawn takes pawn next to it moving in diagonal, after opponent's pawn moved 2 positions opening)
+    const checkEnPassant = (color) => {
+      if (!game.history.length) { return; }
+      const lastMove = game.history.getLast();
+      const [lastDesCol, lastDesRow] = this.square2D(lastMove.posDes);
+      const lastPiece = pieceAt(lastDesCol, lastDesRow);
+      const row1  = color === 'WHITE' ? -1 : 1;
+      const row16 = row1 * 16;
+      if (lastPiece.piece.name === 'pawn' && lastMove.posOri === lastMove.posDes + row16 && row === lastDesRow) {
+        if (lastDesCol === col - 1) { addMove(col - 1, row + row1); }
+        if (lastDesCol === col + 1) { addMove(col + 1, row + row1); }
+      }
+    }
+
+    if (piece.name === 'pawn' && piece.color === 'WHITE') {
       if (row === 6 && pieceAt(col, row - 1).isEmpty() && pieceAt(col, row - 2).isEmpty()) { addMove(col, row - 2); }  // Advance 2
+      addMoveIf(col, row - 1, ['empty']); // Advance 1
+      addMoveIf(col - 1, row - 1, [otherColor]); // Kill left
+      addMoveIf(col + 1, row - 1, [otherColor]); // Kill right
+      checkEnPassant(piece.color);
     }
-    if (piece.name === 'knight' && piece.color === 'white') {
-      addMoveIf(col - 1, row - 2, ['empty', 'black']);
-      addMoveIf(col + 1, row - 2, ['empty', 'black']);
-      addMoveIf(col - 2, row - 1, ['empty', 'black']);
-      addMoveIf(col + 2, row - 1, ['empty', 'black']);
-      addMoveIf(col - 2, row + 1, ['empty', 'black']);
-      addMoveIf(col - 1, row + 2, ['empty', 'black']);
-      addMoveIf(col + 2, row + 1, ['empty', 'black']);
-      addMoveIf(col + 1, row + 2, ['empty', 'black']);
-    }
-    if (piece.name === 'rook' && piece.color === 'white') {
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col, row - t, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col, row + t, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row, ['empty', 'black']).isEmpty()) { break; } }
-    }
-    if (piece.name === 'bishop' && piece.color === 'white') {
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row - t, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col - t, row + t, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row - t, ['empty', 'black']).isEmpty()) { break; } }
-      for (let t = 1; t <= 8; t++) { if (!addMoveIf(col + t, row + t, ['empty', 'black']).isEmpty()) { break; } }
+    if (piece.name === 'pawn' && piece.color === 'BLACK') {
+      if (row === 1 && pieceAt(col, row + 1).isEmpty() && pieceAt(col, row + 2).isEmpty()) { addMove(col, row + 2); }  // Advance 2
+      addMoveIf(col, row + 1, ['empty']); // Advance 1
+      addMoveIf(col - 1, row + 1, [otherColor]); // Kill left
+      addMoveIf(col + 1, row + 1, [otherColor]); // Kill right
+      checkEnPassant(piece.color);
     }
 
     return validMoves;
@@ -153,7 +189,7 @@ export class StoreService {
       playerName2 : null,
       status      : EGameStatus.REQUESTED,
       history     : [],
-      board       : emptyBoard,
+      board       : [...emptyBoard],
     });
   }
 
@@ -167,11 +203,56 @@ export class StoreService {
       playerName2 : this.profile.user.displayName,
       status      : EGameStatus.WHITE,
       history     : [],
-      board       : emptyBoard,
+      board       : [...emptyBoard],
     };
     return gameDoc.update(joinGame);
   }
 
+  public commitMove(game, posOri, posDes) {
+    this.makeMove(game, posOri, posDes);
+    return this.updateGame(game);
+  }
+
+  public makeMove(game, posOri, posDes) {
+    const validMoves = this.getValidMoves(game, posOri);
+    if (!validMoves.includes(posDes)) { return null; }
+
+    const piece = this.getPiece(game.board[posOri]);
+
+    const move: any = { posOri, posDes, piece: game.board[posOri] };
+    if (game.board[posDes] > 0) { move.takes = game.board[posDes]; } // Add taken piece
+
+    // En Passant: Pawn next to pawn takes by moving diagonal, after opponent's pawn moved 2 positions opening
+    const prevMove = game.history.getLast();
+    if (piece.name === 'pawn' && prevMove) {
+      const prevPiece = this.getPiece(game.board[prevMove.posDes]);
+      if (prevPiece.name === 'pawn') {
+        if ((prevMove.posOri === prevMove.posDes - 16 && posDes === prevMove.posDes - 8) ||
+            (prevMove.posOri === prevMove.posDes + 16 && posDes === prevMove.posDes + 8)) {
+          game.board[prevMove.posDes] = 0;
+          move.takes = prevPiece.code;
+        }
+      }
+    }
+
+    game.history.push(move);
+    game.board[posDes] = game.board[posOri];
+    game.board[posOri] = 0;
+    game.status = game.status === EGameStatus.WHITE ? EGameStatus.BLACK : EGameStatus.WHITE;
+    return move;
+  }
+
+  // TODO: This should trigger a cloud function that validates the move
+  public updateGame(game) {
+    const gameDoc = this.afs.doc<IGameDoc>('games/' + game.id);
+    return gameDoc.update(game);
+  }
+
+  public resetGame = (game) => {
+    game.history = [];
+    game.status = EGameStatus.WHITE;
+    game.board = [...emptyBoard];
+  }
 
 
   // --------------- Helpers ---------------
@@ -184,25 +265,25 @@ export class StoreService {
   public canPlayGame = game => game.status === EGameStatus.WHITE || game.status === EGameStatus.BLACK;
 
   public squareRow = num => Math.floor(num / 8);
-  public square2D = num => [num % 8, this.squareRow(num)];
+  public square2D = num => [num % 8, this.squareRow(num)];  // row = [0, ... 7]
   public squareColor = num => (num + (this.squareRow(num) % 2)) % 2 === 0 ? 'white' : 'black';
 
   public getPiece = code => {
     const pType = { code, name: '', color: '', img: '' };
-    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(code))            { pType.name = 'pawn';    pType.color = 'white'; }
-    if ([EPiece.WRook1,   EPiece.WRook2].includes(code))    { pType.name = 'rook';    pType.color = 'white'; }
-    if ([EPiece.WKnight1, EPiece.WKnight2].includes(code))  { pType.name = 'knight';  pType.color = 'white'; }
-    if ([EPiece.WBishop1, EPiece.WBishop2].includes(code))  { pType.name = 'bishop';  pType.color = 'white'; }
-    if (code === EPiece.WQueen)                             { pType.name = 'queen';   pType.color = 'white'; }
-    if (code === EPiece.WKing)                              { pType.name = 'king';    pType.color = 'white'; }
-    if ([17, 18, 19, 20, 21, 22, 23, 24].includes(code))    { pType.name = 'pawn';    pType.color = 'black'; }
-    if ([EPiece.BRook1,   EPiece.BRook2].includes(code))    { pType.name = 'rook';    pType.color = 'black'; }
-    if ([EPiece.BKnight1, EPiece.BKnight2].includes(code))  { pType.name = 'knight';  pType.color = 'black'; }
-    if ([EPiece.BBishop1, EPiece.BBishop2].includes(code))  { pType.name = 'bishop';  pType.color = 'black'; }
-    if (code === EPiece.BQueen)                             { pType.name = 'queen';   pType.color = 'black'; }
-    if (code === EPiece.BKing)                              { pType.name = 'king';    pType.color = 'black'; }
+    if ([1, 2, 3, 4, 5, 6, 7, 8].includes(code))            { pType.name = 'pawn';    pType.color = 'WHITE'; }
+    if ([EPiece.WRook1,   EPiece.WRook2].includes(code))    { pType.name = 'rook';    pType.color = 'WHITE'; }
+    if ([EPiece.WKnight1, EPiece.WKnight2].includes(code))  { pType.name = 'knight';  pType.color = 'WHITE'; }
+    if ([EPiece.WBishop1, EPiece.WBishop2].includes(code))  { pType.name = 'bishop';  pType.color = 'WHITE'; }
+    if (code === EPiece.WQueen)                             { pType.name = 'queen';   pType.color = 'WHITE'; }
+    if (code === EPiece.WKing)                              { pType.name = 'king';    pType.color = 'WHITE'; }
+    if ([17, 18, 19, 20, 21, 22, 23, 24].includes(code))    { pType.name = 'pawn';    pType.color = 'BLACK'; }
+    if ([EPiece.BRook1,   EPiece.BRook2].includes(code))    { pType.name = 'rook';    pType.color = 'BLACK'; }
+    if ([EPiece.BKnight1, EPiece.BKnight2].includes(code))  { pType.name = 'knight';  pType.color = 'BLACK'; }
+    if ([EPiece.BBishop1, EPiece.BBishop2].includes(code))  { pType.name = 'bishop';  pType.color = 'BLACK'; }
+    if (code === EPiece.BQueen)                             { pType.name = 'queen';   pType.color = 'BLACK'; }
+    if (code === EPiece.BKing)                              { pType.name = 'king';    pType.color = 'BLACK'; }
 
-    if (pType.name) { pType.img = `assets/${pType.color[0]}-${pType.name}.png`; }
+    if (pType.name) { pType.img = `assets/${pType.color[0].toLowerCase()}-${pType.name}.png`; }
     return pType;
   }
 

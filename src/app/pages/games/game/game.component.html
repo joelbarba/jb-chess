@@ -18,4 +18,12 @@
   </div>
 </div>
 
-phase={{phase}}
+<p>You play with {{yourColor}}</p>
+<p *ngIf="game?.status === yourColor">YOU PLAY</p>
+<p *ngIf="game?.status !== yourColor">Waiting for the opponent to move</p>
+
+<jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
+<jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
+
+<p>History:</p>
+<pre>{{game?.history | json}}</pre>
