@@ -46,10 +46,14 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   public revertLast = () => {
-    const history = [...this.game.history];
-    this.store.resetGame(this.game);
-    history.pop();
-    history.forEach(move => this.store.makeMove(this.game, move.posOri, move.posDes));
+    this.game.history.pop();
+    const lastMove = this.game.history.getLast();
+    if (lastMove) {
+      this.game.board = [...lastMove.nextBoard];
+    } else {
+      this.store.resetGame(this.game);
+    }
+    this.game.status = this.game.status === EGameStatus.WHITE ? EGameStatus.BLACK : EGameStatus.WHITE;
     this.store.updateGame(this.game).then(() => this.clearPhase());
   }
 
@@ -60,7 +64,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
   private selectPiece = (pos) => {
     this.selPos = pos;
-    this.validMoves = this.store.getValidMoves(this.game, pos);
+    this.validMoves = this.store.getValidMoves(this.game, pos).map(m => m.posDes);
     this.phase = 1;
   };
 

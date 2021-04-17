@@ -1,7 +1,7 @@
 export const dateToStr = (dateVal) => {
   let res = '';
   res += (dateVal.getDate() + '').pad(2);
-  res += '-' + (dateVal.getMonth() + '').pad(2);
+  res += '-' + ((dateVal.getMonth() + 1) + '').pad(2);
   res += '-' + (dateVal.getFullYear() + '').pad(4);
   res += ' ' + (dateVal.getHours() + '').pad(2);
   res += ':' + (dateVal.getMinutes() + '').pad(2);

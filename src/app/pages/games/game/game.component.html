@@ -26,4 +26,9 @@
 <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
 
 <p>History:</p>
-<pre>{{game?.history | json}}</pre>
+<div *ngIf="game?.history" style="font-family: monospace">
+  <div *ngFor="let move of game.history; let ind = index">
+    {{ind}} - posOri={{move.posOri}}, posOri={{move.posDes}}
+    <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
+  </div>
+</div>
