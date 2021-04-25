@@ -185,7 +185,7 @@ export class StoreService {
   //    takes ---> the piece that is being taken (if any. if none, 0)
   //    nextBoard --> The game.board[] array after the move
   // }
-  public getValidMoves = (game, posOri, checkMate = true) => {
+  public getValidMoves = (game, posOri, fullCheck = true) => {
     const board = game.board;
     const piece = this.getPiece(board[posOri]);
     const [col, row] = this.square2D(posOri);
@@ -211,6 +211,15 @@ export class StoreService {
         }
       };
     };
+
+    // Returns the position the given piece is at on the board
+    const piecePos = (code) => {
+      for (let pos = 0; pos < 64; pos++) {
+        if (board[pos] === code) { return pos; }
+      }
+    };
+
+    // Adds a move to the validMoves[] array
     const addMove = (col, row) => {
       if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
         const posDes = (row * 8) + col;
@@ -303,6 +312,17 @@ export class StoreService {
       checkEnPassant(piece.color);
     }
 
+
+    // Checks if the given position is being attacked by an opponent's piece. If so, it returns the attacker piece
+    const isPosAttacked = (pos) => {
+      if (!fullCheck) { return false; } // avoid recursivity
+      const otherPieces = board.map(code => this.getPiece(code)).filter(piece => piece.color === otherColor);
+      for (const otherPiece of otherPieces) {
+        const attackMoves = this.getValidMoves(game, piecePos(otherPiece.code), false).filter(move => move.posDes === pos);
+        if (attackMoves.length > 0) { return otherPiece; }
+      }
+    }
+
 //   R   Kn  B   Q   K   B   Kn  R            R   Kn  B   Q   K   B   Kn  R
 //   ----------------------------------------------------------------------
 //   25, 26, 27, 28, 29, 30, 31, 32,  | 0 |  00  01  02  03  04  05  06  07
@@ -319,40 +339,48 @@ export class StoreService {
     // Castling
     // - The king and the rook may not have moved from their starting squares if you want to castle.
     // - All spaces between the king and the rook must be empty.
-    // - The king cannot be in check. @TODO <--------------------------------------
+    // - The king cannot be in check.
     // - The squares that the king passes over must not be under attack, nor the square where it lands on.
     if (piece.code === 13 && piece.color === yourColor && game.history.every(m => m.piece !== 13)) { // white king
       if (game.history.every(m => m.piece !== 16)) {  // King <-> Right Rook
         if (pieceAt(5, 7).isEmpty() && pieceAt(6, 7).isEmpty()) {
-          const move = addMove(6, 7);
-          move.nextBoard[63] = 0; move.nextBoard[61] = 16;
+          if (!isPosAttacked(60) && !isPosAttacked(61) && !isPosAttacked(62)) {
+            const move = addMove(6, 7);
+            move.nextBoard[63] = 0; move.nextBoard[61] = 16;
+          }
         }
       }
       if (game.history.every(m => m.piece !== 9)) { // Left Rook <-> King
         if (pieceAt(1, 7).isEmpty() && pieceAt(2, 7).isEmpty() && pieceAt(3, 7).isEmpty()) {
-          const move = addMove(2, 7);
-          move.nextBoard[56] = 0; move.nextBoard[59] = 9;
+          if (!isPosAttacked(60) && !isPosAttacked(59) && !isPosAttacked(58)) {
+            const move = addMove(2, 7);
+            move.nextBoard[56] = 0; move.nextBoard[59] = 9;
+          }
         }
       }
     }
     if (piece.code === 29 && piece.color === yourColor && game.history.every(m => m.piece !== 29)) { // black king
       if (game.history.every(m => m.piece !== 32)) {  // Right Rook
         if (pieceAt(5, 0).isEmpty() && pieceAt(6, 0).isEmpty()) {
-          const move = addMove(6, 0);
-          move.nextBoard[7] = 0; move.nextBoard[5] = 32;
+          if (!isPosAttacked(4) && !isPosAttacked(5) && !isPosAttacked(6)) {
+            const move = addMove(6, 0);
+            move.nextBoard[7] = 0; move.nextBoard[5] = 32;
+          }
         }
       }
       if (game.history.every(m => m.piece !== 25)) { // Left Rook
         if (pieceAt(1, 0).isEmpty() && pieceAt(2, 0).isEmpty() && pieceAt(3, 0).isEmpty()) {
-          const move = addMove(2, 0);
-          move.nextBoard[0] = 0; move.nextBoard[3] = 25;
+          if (!isPosAttacked(4) && !isPosAttacked(3) && !isPosAttacked(2)) {
+            const move = addMove(2, 0);
+            move.nextBoard[0] = 0; move.nextBoard[3] = 25;
+          }
         }
       }
     }
 
 
 
-    if (!checkMate) { return validMoves; } // exclude moves that would cause mate (to avoid recursivity)
+    if (!fullCheck) { return validMoves; } // exclude moves that would cause mate (to avoid recursivity)
 
     // Invalidate mate moves:
     // If a move puts the king in a position that can be taken at the next move, remove it because it is not valid
@@ -362,13 +390,13 @@ export class StoreService {
       nextGame.history.push(move);
       // Filter opponent's pieces and calculate all opponent's valid moves after move.
       // If any of these calculated valid moves takes the king, invalidate the current move.
-      return !nextGame.board.map((code, pos) => ({ ...this.getPiece(code), pos })).some(piece => {
+      return !nextGame.board.map(code => this.getPiece(code)).some(piece => {
         if (piece.color !== otherColor) { return false; }
-        const killMoves = this.getValidMoves(nextGame, piece.pos, false).filter(nextMove => {
+        const killMoves = this.getValidMoves(nextGame, piecePos(piece.code), false).filter(nextMove => {
           return yourColor === 'WHITE' && nextMove.takes === 13
               || yourColor === 'BLACK' && nextMove.takes === 29;
         });
-        if (killMoves.length > 0) { console.log('Killing moves', piece, killMoves); }
+        // if (killMoves.length > 0) { console.log('Killing moves', piece, killMoves); }
         return killMoves.length > 0;
       });
     });
