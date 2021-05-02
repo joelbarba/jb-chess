@@ -2,6 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {EGameStatus, StoreService} from "@core/store/store.service";
 import {JbProfileService} from "@core/common/jb-profile.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {PieceSelectorModal} from "./piece-selector-modal/piece-selector.modal";
 
 @Component({
   selector: 'jb-game',
@@ -23,6 +25,7 @@ export class GameComponent implements OnInit, OnDestroy {
     public store: StoreService,
     public profile: JbProfileService,
     private route: ActivatedRoute,
+    private modal: NgbModal,
   ) {
   }
 
@@ -80,7 +83,15 @@ export class GameComponent implements OnInit, OnDestroy {
       const pieceAtPos = this.store.getPiece(this.game.board[pos]);
       if (pieceAtPos.color === this.yourColor) { this.selectPiece(pos); } // Selecting another of your pieces (switch selection)
       if (pieceAtPos.color !== this.yourColor) {
-        this.store.commitMove(this.game, this.selPos, pos).then(() => this.clearPhase());
+
+        if (this.store.isPawnFinished(this.selPos, pos, this.game.board)) { // Select a promoted piece for a pawn
+          const modalRef = this.modal.open(PieceSelectorModal, { size: 'md', backdrop: 'static' });
+          modalRef.componentInstance.color = this.yourColor;
+          modalRef.result.then(code => this.store.commitMove(this.game, this.selPos, pos, code)).finally(() => this.clearPhase());
+
+        } else { // Make the move
+          this.store.commitMove(this.game, this.selPos, pos).then(() => this.clearPhase());
+        }
       }
     }
   };

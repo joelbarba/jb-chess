@@ -28,7 +28,7 @@
 <p>History:</p>
 <div *ngIf="game?.history" style="font-family: monospace">
   <div *ngFor="let move of game.history; let ind = index">
-    {{ind}} - posOri={{move.posOri}}, posOri={{move.posDes}}
+    {{ind}} - posOri={{move.posOri}}, posDes={{move.posDes}}
     <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
   </div>
 </div>

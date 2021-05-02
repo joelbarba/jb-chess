@@ -41,6 +41,7 @@ export const enDic = {
   'view.games.player2': 'Player 2',
   'view.games.no_games': 'No Games',
   'view.games.request_date': 'Request Date',
+  'view.game.select_piece.header': 'Select a Piece',
   'view.common.status': 'Status',
   'view.common.id': 'Id',
   'view.common.join': 'Join',

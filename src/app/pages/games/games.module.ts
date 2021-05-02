@@ -3,6 +3,7 @@ import {GamesComponent} from './games.component';
 import {RouterModule, Routes} from '@angular/router';
 import {CoreModule} from '@core/core.module';
 import {GameComponent} from './game/game.component';
+import {PieceSelectorModal} from "./game/piece-selector-modal/piece-selector.modal";
 
 const routes: Routes = [
   { path: '', component: GamesComponent },
@@ -10,7 +11,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [GamesComponent, GameComponent],
+  declarations: [GamesComponent, GameComponent, PieceSelectorModal],
   imports: [
     CoreModule,
     RouterModule.forChild(routes),

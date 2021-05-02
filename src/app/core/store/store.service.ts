@@ -115,15 +115,19 @@ export class StoreService {
     return gameDoc.update(joinGame);
   }
 
-  public commitMove(game, posOri, posDes) {
-    this.makeMove(game, posOri, posDes);
+  public commitMove(game, posOri, posDes, promotedPieceCode?) {
+    this.makeMove(game, posOri, posDes, promotedPieceCode);
     return this.updateGame(game);
   }
 
-  public makeMove(game, posOri, posDes) {
+  public makeMove(game, posOri, posDes, promotedPieceCode?) {
     const validMoves = this.getValidMoves(game, posOri);
     if (!validMoves.map(m => m.posDes).includes(posDes)) { return null; }
     const move = validMoves.getByProp('posDes', posDes);
+    if (promotedPieceCode) {
+      move.promotedTo = promotedPieceCode;
+      move.nextBoard[posDes] = promotedPieceCode;
+    }
     game.history.push(move);
     game.board = [...move.nextBoard];
     game.status = game.status === EGameStatus.WHITE ? EGameStatus.BLACK : EGameStatus.WHITE;
@@ -323,19 +327,6 @@ export class StoreService {
       }
     }
 
-//   R   Kn  B   Q   K   B   Kn  R            R   Kn  B   Q   K   B   Kn  R
-//   ----------------------------------------------------------------------
-//   25, 26, 27, 28, 29, 30, 31, 32,  | 0 |  00  01  02  03  04  05  06  07
-//   17, 18, 19, 20, 21, 22, 23, 24,  | 1 |  08  09  10  11  12  13  14  15
-//   0,  0,  0,  0,  0,  0,  0,  0,   | 2 |  16  17  18  19  20  21  22  23
-//   0,  0,  0,  0,  0,  0,  0,  0,   | 3 |  24  25  26  27  28  29  30  31
-//   0,  0,  0,  0,  0,  0,  0,  0,   | 4 |  32  33  34  35  36  37  38  39
-//   0,  0,  0,  0,  0,  0,  0,  0,   | 5 |  40  41  42  43  44  45  46  47
-//   1,  2,  3,  4,  5,  6,  7,  8,   | 6 |  48  49  50  51  52  53  54  55
-//   9, 10, 11, 12, 13, 14, 15, 16,   | 7 |  56  57  58  59  60  61  62  63
-//   ----------------------------------------------------------------------
-//   R  Kn   B   Q   K   B  Kn   R            R  Kn   B   Q   K   B  Kn   R
-
     // Castling
     // - The king and the rook may not have moved from their starting squares if you want to castle.
     // - All spaces between the king and the rook must be empty.
@@ -401,6 +392,17 @@ export class StoreService {
       });
     });
 
+  }
+
+
+  // Check if the move is a Pawn reaching the other side of the board
+  public isPawnFinished = (posOri, posDes, board) => {
+    const piece = this.getPiece(board[posOri]);
+    if (piece.name === 'pawn') {
+      if (piece.color === 'WHITE' && [0,1,2,3,4,5,6,7].includes(posDes)) { return true; }
+      if (piece.color === 'BLACK' && [56,57,58,59,60,61,62,63].includes(posDes)) { return true; }
+    }
+    return false;
   }
 
 }
