@@ -33,7 +33,8 @@
           <jb-btn *ngIf="game.canJoin" (jbClick)="joinGame(game)"
                   jbType="add" jbText="view.common.join">
           </jb-btn>
-          <jb-btn *ngIf="game.canPlay" (jbClick)="router.navigate(['games/', game.id])"
+          <jb-btn *ngIf="game.status !== REQUESTED"
+                  (jbClick)="router.navigate(['games/', game.id])"
                   jbType="update" jbText="view.common.go">
           </jb-btn>
         </div>

@@ -4,6 +4,7 @@ import {EGameStatus, StoreService} from "@core/store/store.service";
 import {JbProfileService} from "@core/common/jb-profile.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {PieceSelectorModal} from "./piece-selector-modal/piece-selector.modal";
+import {JbConfirmService} from "jb-ui-lib";
 
 @Component({
   selector: 'jb-game',
@@ -15,6 +16,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public game;
   public sub;
   public yourColor: 'WHITE' | 'BLACK';
+  public otherColor: 'WHITE' | 'BLACK';
   public phase = 0; // 0=select piece, 1=select destination
   public selPos;    // Position of the selected piece (to move)
   public validMoves = []; // Valid destination nums for the selected piece
@@ -26,17 +28,28 @@ export class GameComponent implements OnInit, OnDestroy {
     public profile: JbProfileService,
     private route: ActivatedRoute,
     private modal: NgbModal,
+    private confirm: JbConfirmService,
   ) {
   }
 
   ngOnInit(): void {
-
     this.gameId = this.route.snapshot.paramMap.get('gameId');
     // this.store.getGame(this.gameId).then(game => this.game = game);
+    let lastStatus = '';
     this.sub = this.store.getGame$(this.gameId).subscribe(game => {
-      console.log('New change on the game', game);
       this.game = { ...game, id: this.gameId };
       this.yourColor = game.player1 === this.profile.user.id ? 'WHITE' : 'BLACK';
+      this.otherColor = this.yourColor === 'BLACK' ? 'WHITE' : 'BLACK';
+      if (!!lastStatus && game.status === this.otherColor + ' WON') {
+        this.confirm.open({
+          title            : 'view.game.check_mate',
+          htmlContent      : '<h4 class="text-center">Sorry, you lost.</h4>',
+          yesButtonText    : 'view.common.ok',
+          showNo           : false,
+          showCancel       : false,
+        });
+      }
+      lastStatus = game.status;
     });
   }
 
@@ -87,10 +100,10 @@ export class GameComponent implements OnInit, OnDestroy {
         if (this.store.isPawnFinished(this.selPos, pos, this.game.board)) { // Select a promoted piece for a pawn
           const modalRef = this.modal.open(PieceSelectorModal, { size: 'md', backdrop: 'static' });
           modalRef.componentInstance.color = this.yourColor;
-          modalRef.result.then(code => this.store.commitMove(this.game, this.selPos, pos, code)).finally(() => this.clearPhase());
+          modalRef.result.then(code => this.commitMove(this.game, this.selPos, pos, code)).finally(() => this.clearPhase());
 
         } else { // Make the move
-          this.store.commitMove(this.game, this.selPos, pos).then(() => this.clearPhase());
+          this.commitMove(this.game, this.selPos, pos).then(() => this.clearPhase());
         }
       }
     }
@@ -108,6 +121,18 @@ export class GameComponent implements OnInit, OnDestroy {
     return piece.color === this.yourColor;
   }
 
-
+  public commitMove(game, posOri, posDes, promotedPieceCode?) {
+    this.store.makeMove(game, posOri, posDes, promotedPieceCode);
+    if (game.status === EGameStatus.WHITE_WON || game.status === EGameStatus.BLACK_WON) {
+      this.confirm.open({
+        title            : 'view.game.check_mate',
+        htmlContent      : '<h4 class="text-center">Congratulations, you won!</h4>',
+        yesButtonText    : 'view.common.ok',
+        showNo           : false,
+        showCancel       : false,
+      });
+    }
+    return this.store.updateGame(game);
+  }
 
 }

@@ -4,10 +4,17 @@ import {map, take} from 'rxjs/operators';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {Observable} from 'rxjs';
 import {JbProfileService} from '@core/common/jb-profile.service';
-import {dCopy, JbGrowlService} from 'jb-ui-lib';
+import {dCopy} from 'jb-ui-lib';
 import {dateToStr} from '@core/core-lib/helpers';
 
-export enum EGameStatus { REQUESTED = 'REQUESTED', WHITE = 'WHITE', BLACK = 'BLACK', FINISHED = 'FINISHED' }
+export enum EGameStatus {
+  REQUESTED = 'REQUESTED',
+  WHITE = 'WHITE',
+  BLACK = 'BLACK',
+  WHITE_WON = 'WHITE WON',
+  BLACK_WON = 'BLACK WON',
+  DRAW = 'DRAW',
+}
 export enum EPiece {
   BRook1 = 25, BKnight1 = 26, BBishop1 = 27, BQueen = 28, BKing  = 29, BBishop2 = 30, BKnight2 = 31, BRook2 = 32,
   BPawn1 = 17, BPawn2   = 18, BPawn3   = 19, BPawn4 = 20, BPawn5 = 21, BPawn6   = 22, BPawn7   = 23, BPawn8 = 24,
@@ -131,6 +138,9 @@ export class StoreService {
     game.history.push(move);
     game.board = [...move.nextBoard];
     game.status = game.status === EGameStatus.WHITE ? EGameStatus.BLACK : EGameStatus.WHITE;
+    if (this.isCheckMate(game, move)) {
+      game.status = move.piece.color === 'WHITE' ? EGameStatus.WHITE_WON : EGameStatus.BLACK_WON;
+    }
     return move;
   }
 
@@ -216,12 +226,8 @@ export class StoreService {
       };
     };
 
-    // Returns the position the given piece is at on the board
-    const piecePos = (code) => {
-      for (let pos = 0; pos < 64; pos++) {
-        if (board[pos] === code) { return pos; }
-      }
-    };
+    // Returns an array with the (color) players pieces and their positions
+    const playerPieces = (color) => board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(p => p.color === color);
 
     // Adds a move to the validMoves[] array
     const addMove = (col, row) => {
@@ -320,9 +326,8 @@ export class StoreService {
     // Checks if the given position is being attacked by an opponent's piece. If so, it returns the attacker piece
     const isPosAttacked = (pos) => {
       if (!fullCheck) { return false; } // avoid recursivity
-      const otherPieces = board.map(code => this.getPiece(code)).filter(piece => piece.color === otherColor);
-      for (const otherPiece of otherPieces) {
-        const attackMoves = this.getValidMoves(game, piecePos(otherPiece.code), false).filter(move => move.posDes === pos);
+      for (const otherPiece of playerPieces(otherColor)) {
+        const attackMoves = this.getValidMoves(game, otherPiece.pos, false).filter(move => move.posDes === pos);
         if (attackMoves.length > 0) { return otherPiece; }
       }
     }
@@ -381,9 +386,8 @@ export class StoreService {
       nextGame.history.push(move);
       // Filter opponent's pieces and calculate all opponent's valid moves after move.
       // If any of these calculated valid moves takes the king, invalidate the current move.
-      return !nextGame.board.map(code => this.getPiece(code)).some(piece => {
-        if (piece.color !== otherColor) { return false; }
-        const killMoves = this.getValidMoves(nextGame, piecePos(piece.code), false).filter(nextMove => {
+      return !playerPieces(otherColor).some(piece => {
+        const killMoves = this.getValidMoves(nextGame, piece.pos, false).filter(nextMove => {
           return yourColor === 'WHITE' && nextMove.takes === 13
               || yourColor === 'BLACK' && nextMove.takes === 29;
         });
@@ -403,6 +407,24 @@ export class StoreService {
       if (piece.color === 'BLACK' && [56,57,58,59,60,61,62,63].includes(posDes)) { return true; }
     }
     return false;
+  }
+
+  // Returns an array with the (color) players pieces and their positions
+  // public playersPieces = (board, color) => {
+  //   return board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(piece => piece.color === color);
+  // }
+
+
+  public isCheckMate = (game, lastMove) => {
+    const color = lastMove.piece.color === 'WHITE' ? 'BLACK' : 'WHITE';
+    const pieces = game.board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(piece => piece.color === color);
+    for (const piece of pieces) {
+      const moves = this.getValidMoves(game, piece.pos);
+      if (moves.length) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

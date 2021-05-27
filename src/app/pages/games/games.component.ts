@@ -3,7 +3,7 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {JbProfileService} from '@core/common/jb-profile.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {JbGrowlService, JbListHandler, ListStatus} from 'jb-ui-lib';
-import {StoreService} from '@core/store/store.service';
+import {EGameStatus, StoreService} from '@core/store/store.service';
 import {strToDate} from '@core/core-lib/helpers';
 import {Router} from "@angular/router";
 
@@ -15,6 +15,7 @@ import {Router} from "@angular/router";
 export class GamesComponent implements OnInit, OnDestroy {
   public status = ListStatus;
   public sub;
+  public REQUESTED = EGameStatus.REQUESTED;
 
   public gamesList = new JbListHandler({
     listName: 'games-list',
@@ -54,6 +55,7 @@ export class GamesComponent implements OnInit, OnDestroy {
       this.growl.success('view.games.request_send');
     });
   }
+
 
   joinGame(game) {
     this.store.joinGame(game);

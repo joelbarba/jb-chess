@@ -20,7 +20,9 @@
 
 <p>You play with {{yourColor}}</p>
 <p *ngIf="game?.status === yourColor">YOU PLAY</p>
-<p *ngIf="game?.status !== yourColor">Waiting for the opponent to move</p>
+<p *ngIf="game?.status === otherColor">Waiting for the opponent to move</p>
+<p *ngIf="game?.status === 'WHITE WON'">Check Mate - White won</p>
+<p *ngIf="game?.status === 'BLACK WON'">Check Mate - Black won</p>
 
 <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
 <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
