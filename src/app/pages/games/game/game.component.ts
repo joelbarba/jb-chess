@@ -20,6 +20,7 @@ export class GameComponent implements OnInit, OnDestroy {
   public phase = 0; // 0=select piece, 1=select destination
   public selPos;    // Position of the selected piece (to move)
   public validMoves = []; // Valid destination nums for the selected piece
+  public reverseBoard = false;  // false=white at the bottom, true=black at the bottom
 
   public squares = Array.from({ length: 64 }, (x, i) => i);
 
@@ -33,28 +34,39 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    let firstLoad = true;
     this.gameId = this.route.snapshot.paramMap.get('gameId');
-    // this.store.getGame(this.gameId).then(game => this.game = game);
-    let lastStatus = '';
+
     this.sub = this.store.getGame$(this.gameId).subscribe(game => {
-      this.game = { ...game, id: this.gameId };
-      this.yourColor = game.player1 === this.profile.user.id ? 'WHITE' : 'BLACK';
-      this.otherColor = this.yourColor === 'BLACK' ? 'WHITE' : 'BLACK';
-      if (!!lastStatus && game.status === this.otherColor + ' WON') {
-        this.confirm.open({
-          title            : 'view.game.check_mate',
-          htmlContent      : '<h4 class="text-center">Sorry, you lost.</h4>',
-          yesButtonText    : 'view.common.ok',
-          showNo           : false,
-          showCancel       : false,
-        });
+      this.game = { ...game, id: this.gameId }; // update the game
+
+      if (firstLoad) { // set game vars
+        this.yourColor = game.player1 === this.profile.user.id ? 'WHITE' :'BLACK';
+        this.otherColor = this.yourColor === 'BLACK' ? 'WHITE' :'BLACK';
+        this.reverseBoard = this.yourColor === 'BLACK';
+
+      } else { // Check if check mate (opponent's won)
+        if (game.status === this.otherColor + ' WON') {
+          this.confirm.open({
+            title            : 'view.game.check_mate',
+            htmlContent      : '<h4 class="text-center">Sorry, you lost.</h4>',
+            yesButtonText    : 'view.common.ok',
+            showNo           : false,
+            showCancel       : false,
+          });
+        }
       }
-      lastStatus = game.status;
+
+      firstLoad = false;
     });
   }
 
   ngOnDestroy() { this.sub.unsubscribe(); }
 
+
+  // White player (reverseBoard=false) --> pos = pos
+  // Black player (reverseBoard=true) ---> pos = 64 - pos
+  public getPos = (pos) => !this.reverseBoard ? pos : 63 - pos;
 
   public resetGame = () => {
     this.store.resetGame(this.game);

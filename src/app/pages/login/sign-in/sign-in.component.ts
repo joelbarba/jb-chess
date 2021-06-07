@@ -22,9 +22,7 @@ export class SignInComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
-    console.log('xxxxxxxxxxxx', new Date());
-  }
+  ngOnInit() {}
 
   signIn() {
     this.afAuth.createUserWithEmailAndPassword(this.email, this.password).then(userCredential => {

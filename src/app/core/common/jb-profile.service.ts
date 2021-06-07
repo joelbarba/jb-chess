@@ -23,7 +23,6 @@ export class JbProfileService {
   ) {
 
     this.change$ = this.afAuth.user;
-    this.ready = this.afAuth.authState.pipe(take(1)).toPromise();
 
     this.afAuth.user.subscribe(user => {
       if (user && user.emailVerified) {
@@ -35,12 +34,22 @@ export class JbProfileService {
           emailVerified : user.emailVerified,
           fireBaseUser  : user,
         };
-        console.log('Profile ready', this.user);
 
       } else {
         this.clearProfile();
       }
     });
+
+    this.ready = Promise.all([
+      this.afAuth.user.pipe(take(1)).toPromise(),
+      this.afAuth.authState.pipe(take(1)).toPromise().then(() => {
+        if (!this.isLoggedIn) {
+          console.warn('NOW it happened !');
+        }
+      }),
+    ]);
+
+    this.ready.then(() => console.log('READY'));
   }
 
   private clearProfile() {

@@ -33,6 +33,41 @@
         border: 3px solid rgba($secondary_color, 1);
         background: rgba($secondary_color, 0.3);
       }
+      .move-mark {
+        position: absolute;
+        top: 32%;
+        left: 32%;
+        right: 32%;
+        bottom: 32%;
+        border-radius: 100%;
+        background: rgba(gray, 0.2);
+        z-index: 1;
+        //background: rgba($primary_color, 0.4);
+        //background: rgba($secondary_color, 0.4);
+        //border: 8px solid rgba($primary_color, 0.6);
+
+        &.has-piece {
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          margin: -1px;
+          border-radius: 3px;
+          //border: 4px dashed lighten($primary_color, 5%);
+          border: 4px dashed rgba(gray, 0.4);
+          background: transparent;
+        }
+
+      }
+    }
+
+    &.black .selector .move-mark {
+      background: rgba(white, 0.2);
+      &.has-piece {
+        //border: 4px dashed lighten($primary_color, 5%);
+        border: 4px dashed rgba(white, 0.6);
+        background: transparent;
+      }
     }
   }
 }

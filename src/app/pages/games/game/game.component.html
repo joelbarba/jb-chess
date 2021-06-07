@@ -8,11 +8,13 @@
     <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
       <!--{{pos}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
       <div class="selector"
-           [class.is-selectable]="isSelectable(pos)"
-           [class.selected]="selPos === pos"
-           (click)="selectSquare(pos)">
-        <span *ngIf="phase === 1 && validMoves.includes(pos)">X</span>
-        <img *ngIf="game.board[pos] > 0" [src]="store.getPiece(game.board[pos]).img">
+           [class.is-selectable]="isSelectable(getPos(pos))"
+           [class.selected]="selPos === getPos(pos)"
+           (click)="selectSquare(getPos(pos))">
+        <span *ngIf="phase === 1 && validMoves.includes(getPos(pos))"
+              class="move-mark" [class.has-piece]="game.board[getPos(pos)] > 0">
+        </span>
+        <img *ngIf="game.board[getPos(pos)] > 0" [src]="store.getPiece(game.board[getPos(pos)]).img">
       </div>
     </div>
   </div>
@@ -26,6 +28,7 @@
 
 <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
 <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
+<jb-btn jbText="REVERSE" jbIcon="icon-spinner11" (jbClick)="reverseBoard = !reverseBoard"></jb-btn>
 
 <p>History:</p>
 <div *ngIf="game?.history" style="font-family: monospace">
