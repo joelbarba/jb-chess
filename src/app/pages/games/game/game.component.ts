@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {EGameStatus, StoreService} from "@core/store/store.service";
 import {JbProfileService} from "@core/common/jb-profile.service";
@@ -21,8 +21,11 @@ export class GameComponent implements OnInit, OnDestroy {
   public selPos;    // Position of the selected piece (to move)
   public validMoves = []; // Valid destination nums for the selected piece
   public reverseBoard = false;  // false=white at the bottom, true=black at the bottom
+  public mode = 'play'; // play=make next move,  analyse=play both (no commit)
 
   public squares = Array.from({ length: 64 }, (x, i) => i);
+
+  public tab = 'moves';
 
   constructor(
     public store: StoreService,
@@ -59,9 +62,27 @@ export class GameComponent implements OnInit, OnDestroy {
 
       firstLoad = false;
     });
+
+    this.onResize();
   }
 
   ngOnDestroy() { this.sub.unsubscribe(); }
+
+  public boardSize = 500;
+  public minRightPanelWidth = 500;
+  public isSmall = false;
+  @ViewChild('panel', { static: true }) panel: ElementRef<HTMLElement>;
+
+  @HostListener('window:resize', ['$event']) onResize() {
+    const width = this.panel.nativeElement.getBoundingClientRect().width;
+    const height = this.panel.nativeElement.getBoundingClientRect().height;
+    this.isSmall = width < 1000;  // Small screen mode
+    if (this.isSmall) {
+      this.boardSize = Math.round(Math.min(width, height));
+    } else {
+      this.boardSize = Math.round(Math.min(width - this.minRightPanelWidth, height));
+    }
+  }
 
 
   // White player (reverseBoard=false) --> pos = pos

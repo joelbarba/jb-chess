@@ -1,39 +1,126 @@
-<h1>
-  <span translate>view.common.game</span>:
-  <span *ngIf="game">{{ game.playerName1 + ' vs ' + game.playerName2 }}</span>
-</h1>
-
-<div *ngIf="game">
-  <div class="board">
-    <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
-      <!--{{pos}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
-      <div class="selector"
-           [class.is-selectable]="isSelectable(getPos(pos))"
-           [class.selected]="selPos === getPos(pos)"
-           (click)="selectSquare(getPos(pos))">
-        <span *ngIf="phase === 1 && validMoves.includes(getPos(pos))"
-              class="move-mark" [class.has-piece]="game.board[getPos(pos)] > 0">
-        </span>
-        <img *ngIf="game.board[getPos(pos)] > 0" [src]="store.getPiece(game.board[getPos(pos)]).img">
+<div class="panel" [class.is-small]="isSmall" #panel>
+  <div class="left-side">
+    <div class="board" *ngIf="game" [style.width.px]="boardSize" [style.height.px]="boardSize">
+      <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
+        <!--{{pos}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
+        <div class="selector"
+             [class.is-selectable]="isSelectable(getPos(pos))"
+             [class.selected]="selPos === getPos(pos)"
+             (click)="selectSquare(getPos(pos))">
+          <span *ngIf="phase === 1 && validMoves.includes(getPos(pos))"
+                class="move-mark" [class.has-piece]="game.board[getPos(pos)] > 0">
+          </span>
+          <img *ngIf="game.board[getPos(pos)] > 0" [src]="store.getPiece(game.board[getPos(pos)]).img">
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<p>You play with {{yourColor}}</p>
-<p *ngIf="game?.status === yourColor">YOU PLAY</p>
-<p *ngIf="game?.status === otherColor">Waiting for the opponent to move</p>
-<p *ngIf="game?.status === 'WHITE WON'">Check Mate - White won</p>
-<p *ngIf="game?.status === 'BLACK WON'">Check Mate - Black won</p>
+  <div class="right-side">
+    <div class="game-info">
+      <!--<div class="admin-buttons-row">-->
+      <!--  <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>-->
+      <!--  <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>-->
+      <!--</div>-->
+      <div class="buttons-row">
+        <jb-btn jbTooltip="view.game.turn" jbIcon="icon-loop" (jbClick)="reverseBoard = !reverseBoard"></jb-btn>
+        <jb-btn jbTooltip="view.game.analyse" jbIcon="icon-pencil5" (jbClick)="mode = 'analyse'"></jb-btn>
+        <jb-btn jbTooltip="view.game.prev_move" jbIcon="icon-arrow-left6"></jb-btn>
+        <jb-btn jbTooltip="view.game.next_move" jbIcon="icon-arrow-right3"></jb-btn>
+        <jb-btn jbTooltip="view.game.reset" jbIcon="icon-flag7"></jb-btn>
+        <jb-btn jbTooltip="view.game.finish_tooltip" jbIcon="icon-finish"></jb-btn>
+        <jb-btn class="quaternary marL20" jbTooltip="view.game.back_tooltip" jbIcon="icon-undo2" jbText="view.common.back"></jb-btn>
+      </div>
 
-<jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
-<jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
-<jb-btn jbText="REVERSE" jbIcon="icon-spinner11" (jbClick)="reverseBoard = !reverseBoard"></jb-btn>
+      <div class="marT30" *ngIf="game">
+        <div class="d-flex">
+          <h2 class="flex-1 text-center">{{game.playerName1}}</h2>
+          <h2 class="flex-1 text-center">{{game.playerName2}}</h2>
+        </div>
+        <div class="d-flex">
+          <h4 class="flex-1 text-center">(WHITE)</h4>
+          <h4 class="flex-1 text-center">(BLACK)</h4>
+        </div>
+        <div class="d-flex">
+          <h4 class="flex-1 text-center">--:--</h4>
+          <h4 class="flex-1 text-center">12:39</h4>
+        </div>
+        <div class="d-flex marB10">
+          <span class="flex-1 text-center">+3</span>
+          <span class="flex-1 text-center">+1</span>
+        </div>
+        <div class="d-flex">
+          <div class="taken-pieces">
+            <img [src]="store.getPiece(1).img">
+            <img [src]="store.getPiece(2).img">
+            <img [src]="store.getPiece(3).img">
+            <img [src]="store.getPiece(4).img">
+            <img [src]="store.getPiece(5).img">
+            <img [src]="store.getPiece(6).img">
+            <img [src]="store.getPiece(7).img">
+            <img [src]="store.getPiece(8).img">
+            <img [src]="store.getPiece(9).img">
+            <img [src]="store.getPiece(10).img">
+            <img [src]="store.getPiece(11).img">
+            <img [src]="store.getPiece(12).img">
+            <img [src]="store.getPiece(13).img">
+            <img [src]="store.getPiece(14).img">
+            <img [src]="store.getPiece(15).img">
+          </div>
+          <div class="taken-pieces">
+            <img [src]="store.getPiece(17).img">
+            <img [src]="store.getPiece(18).img">
+            <img [src]="store.getPiece(19).img">
+            <img [src]="store.getPiece(20).img">
+            <img [src]="store.getPiece(21).img">
+            <img [src]="store.getPiece(22).img">
+            <img [src]="store.getPiece(23).img">
+            <img [src]="store.getPiece(24).img">
+            <img [src]="store.getPiece(25).img">
+            <img [src]="store.getPiece(26).img">
+            <img [src]="store.getPiece(27).img">
+            <img [src]="store.getPiece(28).img">
+            <img [src]="store.getPiece(29).img">
+            <img [src]="store.getPiece(30).img">
+            <img [src]="store.getPiece(31).img">
+          </div>
+        </div>
+        <!--<p *ngIf="game?.status === yourColor">{{game.playerName1}} ({{yourColor}}) play</p>-->
+      </div>
+    </div>
 
-<p>History:</p>
-<div *ngIf="game?.history" style="font-family: monospace">
-  <div *ngFor="let move of game.history; let ind = index">
-    {{ind}} - posOri={{move.posOri}}, posDes={{move.posDes}}
-    <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
+
+
+    <div class="tab-headers" *ngIf="game">
+      <div class="tab-header" [class.selected]="tab === 'moves'" (click)="tab = 'moves'" translate>views.game.tabs.moves</div>
+      <div class="tab-header" [class.selected]="tab === 'chat'"  (click)="tab = 'chat'"  translate>views.game.tabs.chat</div>
+      <div class="tab-header" [class.selected]="tab === 'video'" (click)="tab = 'video'" translate>views.game.tabs.video</div>
+    </div>
+    <div class="tab-body" *ngIf="game">
+      <div *ngIf="tab === 'moves'">
+        <div *ngIf="game?.history" style="font-family: monospace">
+          <div *ngFor="let move of game.history.slice().reverse(); let ind = index">
+            {{ind}} - posOri={{move.posOri}}, posDes={{move.posDes}}
+            <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="tab === 'chat'"></div>
+      <div *ngIf="tab === 'video'">
+        <span style="display: block; height: 808px;">many things</span>
+      </div>
+    </div>
+
+    <!--<p>You play with {{yourColor}}</p>-->
+    <!--<p *ngIf="game?.status === yourColor">YOU PLAY</p>-->
+    <!--<p *ngIf="game?.status === otherColor">Waiting for the opponent to move</p>-->
+    <!--<p *ngIf="game?.status === 'WHITE WON'">Check Mate - White won</p>-->
+    <!--<p *ngIf="game?.status === 'BLACK WON'">Check Mate - Black won</p>-->
+
+
+
   </div>
 </div>
+
+
