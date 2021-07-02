@@ -1,8 +1,15 @@
 <div class="panel" [class.is-small]="isSmall" #panel>
   <div class="left-side">
+
+    <div class="marks-h" [show]="!reverseBoard"><i>a</i><i>b</i><i>c</i><i>d</i><i>e</i><i>f</i><i>g</i><i>h</i></div>
+    <div class="marks-h" [show]="reverseBoard"> <i>h</i><i>g</i><i>f</i><i>e</i><i>d</i><i>c</i><i>b</i><i>a</i></div>
+    <div class="marks-v" [style.height.px]="boardSize" [show]="!reverseBoard"><i>8</i><i>7</i><i>6</i><i>5</i><i>4</i><i>3</i><i>2</i><i>1</i></div>
+    <div class="marks-v" [style.height.px]="boardSize" [show]="reverseBoard"> <i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i></div>
+
     <div class="board" *ngIf="game" [style.width.px]="boardSize" [style.height.px]="boardSize">
       <div class="square" *ngFor="let pos of squares" [ngClass]="store.squareColor(pos)">
-        <!--{{pos}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
+        <!--{{getPos(pos)}} - {{store.square2D(pos) | json}}={{store.getPiece(game.board[pos]) | json }}-->
+        <!--{{getPos(pos)}}-->
         <div class="selector"
              [class.is-selectable]="isSelectable(getPos(pos))"
              [class.selected]="selPos === getPos(pos)"
@@ -18,10 +25,10 @@
 
   <div class="right-side">
     <div class="game-info">
-      <!--<div class="admin-buttons-row">-->
-      <!--  <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>-->
-      <!--  <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>-->
-      <!--</div>-->
+      <div class="admin-buttons-row">
+        <jb-btn jbText="RESET" jbType="add" (jbClick)="resetGame()"></jb-btn>
+        <jb-btn jbText="UNDO" jbType="back" (jbClick)="revertLast()"></jb-btn>
+      </div>
       <div class="buttons-row">
         <jb-btn jbTooltip="view.game.turn" jbIcon="icon-loop" (jbClick)="reverseBoard = !reverseBoard"></jb-btn>
         <jb-btn jbTooltip="view.game.analyse" jbIcon="icon-pencil5" (jbClick)="mode = 'analyse'"></jb-btn>
@@ -29,7 +36,10 @@
         <jb-btn jbTooltip="view.game.next_move" jbIcon="icon-arrow-right3"></jb-btn>
         <jb-btn jbTooltip="view.game.reset" jbIcon="icon-flag7"></jb-btn>
         <jb-btn jbTooltip="view.game.finish_tooltip" jbIcon="icon-finish"></jb-btn>
-        <jb-btn class="quaternary marL20" jbTooltip="view.game.back_tooltip" jbIcon="icon-undo2" jbText="view.common.back"></jb-btn>
+        <jb-btn class="quaternary marL20" jbTooltip="view.game.back_tooltip"
+                jbIcon="icon-undo2" jbText="view.common.back"
+                (jbClick)="router.navigate(['/games'])">
+        </jb-btn>
       </div>
 
       <div class="marT30" *ngIf="game">
@@ -100,7 +110,7 @@
       <div *ngIf="tab === 'moves'">
         <div *ngIf="game?.history" style="font-family: monospace">
           <div *ngFor="let move of game.history.slice().reverse(); let ind = index">
-            {{ind}} - posOri={{move.posOri}}, posDes={{move.posDes}}
+            {{ind}} - {{ move.note }} - posOri={{move.posOri}}, posDes={{move.posDes}}
             <span *ngIf="move.takes">, TAKES={{move.takes}}</span>
           </div>
         </div>
@@ -111,13 +121,6 @@
         <span style="display: block; height: 808px;">many things</span>
       </div>
     </div>
-
-    <!--<p>You play with {{yourColor}}</p>-->
-    <!--<p *ngIf="game?.status === yourColor">YOU PLAY</p>-->
-    <!--<p *ngIf="game?.status === otherColor">Waiting for the opponent to move</p>-->
-    <!--<p *ngIf="game?.status === 'WHITE WON'">Check Mate - White won</p>-->
-    <!--<p *ngIf="game?.status === 'BLACK WON'">Check Mate - Black won</p>-->
-
 
 
   </div>

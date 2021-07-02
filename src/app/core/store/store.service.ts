@@ -15,13 +15,6 @@ export enum EGameStatus {
   BLACK_WON = 'BLACK WON',
   DRAW = 'DRAW',
 }
-export enum EPiece {
-  BRook1 = 25, BKnight1 = 26, BBishop1 = 27, BQueen = 28, BKing  = 29, BBishop2 = 30, BKnight2 = 31, BRook2 = 32,
-  BPawn1 = 17, BPawn2   = 18, BPawn3   = 19, BPawn4 = 20, BPawn5 = 21, BPawn6   = 22, BPawn7   = 23, BPawn8 = 24,
-  WPawn1 = 1,  WPawn2   = 2,  WPawn3   = 3,  WPawn4 = 4,  WPawn5 = 5,  WPawn6   = 6,  WPawn7   = 7,  WPawn8 = 8,
-  WRook1 = 9,  WKnight1 = 10, WBishop1 = 11, WQueen = 12, WKing  = 13, WBishop2 = 14, WKnight2 = 15, WRook2 = 16,
-}
-export interface IMove { prev: number, next: number, time: string }
 export interface IGameDoc {
   player1: string,
   player2: string,
@@ -30,8 +23,35 @@ export interface IGameDoc {
   status: EGameStatus;
   requestDate ?: string;
   history: Array<IMove>;
-  board: Array<EPiece>;
+  board: Array<EPiece | 0>;
 }
+
+export enum EPiece {
+  BRook1 = 25, BKnight1 = 26, BBishop1 = 27, BQueen = 28, BKing  = 29, BBishop2 = 30, BKnight2 = 31, BRook2 = 32,
+  BPawn1 = 17, BPawn2   = 18, BPawn3   = 19, BPawn4 = 20, BPawn5 = 21, BPawn6   = 22, BPawn7   = 23, BPawn8 = 24,
+  WPawn1 = 1,  WPawn2   = 2,  WPawn3   = 3,  WPawn4 = 4,  WPawn5 = 5,  WPawn6   = 6,  WPawn7   = 7,  WPawn8 = 8,
+  WRook1 = 9,  WKnight1 = 10, WBishop1 = 11, WQueen = 12, WKing  = 13, WBishop2 = 14, WKnight2 = 15, WRook2 = 16,
+}
+interface IPiece {
+  code: EPiece;
+  name: 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
+  color: 'BLACK' | 'WHITE';
+  img: string;
+}
+
+const W_KING = 13;
+const B_KING = 29;
+
+export interface IMove {
+  posOri      : number;             // original position of the moving piece
+  posDes      : number;             // destination position of the moving piece
+  piece       : IPiece;             // object with the moving piece ({ code, color, name, img })
+  note       ?: string;             // official notation text for the move
+  nextBoard   : Array<EPiece | 0>;  // The game.board[] array after the move
+  takes      ?: EPiece;             // the piece that is being taken (if any. if none, 0)
+  promotedTo ?: EPiece;             // if the move is promoting a pawn, the code of the new piece
+}
+
 
 const emptyBoard = [
  25, 26, 27, 28, 29, 30, 31, 32,  // 0-7    0
@@ -56,6 +76,7 @@ const emptyBoard = [
 //   9, 10, 11, 12, 13, 14, 15, 16,   | 7 |  56  57  58  59  60  61  62  63
 //   ----------------------------------------------------------------------
 //   R  Kn   B   Q   K   B  Kn   R            R  Kn   B   Q   K   B  Kn   R
+
 
 
 
@@ -129,16 +150,19 @@ export class StoreService {
 
   public makeMove(game, posOri, posDes, promotedPieceCode?) {
     const validMoves = this.getValidMoves(game, posOri);
-    if (!validMoves.map(m => m.posDes).includes(posDes)) { return null; }
-    const move = validMoves.getByProp('posDes', posDes);
+    const move = validMoves.find(move => move.posOri === posOri && move.posDes === posDes);
+    if (!move) { return null; }
+    move.note = this.getMoveNote(game, posOri, posDes, promotedPieceCode);
+
     if (promotedPieceCode) {
       move.promotedTo = promotedPieceCode;
       move.nextBoard[posDes] = promotedPieceCode;
     }
+
     game.history.push(move);
     game.board = [...move.nextBoard];
     game.status = game.status === EGameStatus.WHITE ? EGameStatus.BLACK : EGameStatus.WHITE;
-    if (this.isCheckMate(game, move)) {
+    if (this.isCheckMate(game)) {
       game.status = move.piece.color === 'WHITE' ? EGameStatus.WHITE_WON : EGameStatus.BLACK_WON;
     }
     return move;
@@ -170,7 +194,8 @@ export class StoreService {
   public square2D = num => [num % 8, this.squareRow(num)];  // row = [0, ... 7]
   public squareColor = num => (num + (this.squareRow(num) % 2)) % 2 === 0 ? 'white' : 'black';
 
-  public getPiece = code => {
+
+  public getPiece = (code): IPiece => {
     const pType = { code, name: '', color: '', img: '' };
     if ([1, 2, 3, 4, 5, 6, 7, 8].includes(code))            { pType.name = 'pawn';    pType.color = 'WHITE'; }
     if ([EPiece.WRook1,   EPiece.WRook2].includes(code))    { pType.name = 'rook';    pType.color = 'WHITE'; }
@@ -186,24 +211,39 @@ export class StoreService {
     if (code === EPiece.BKing)                              { pType.name = 'king';    pType.color = 'BLACK'; }
 
     if (pType.name) { pType.img = `assets/${pType.color[0].toLowerCase()}-${pType.name}.png`; }
-    return pType;
+    return pType as IPiece;
   }
 
 
+  // It returns all valid moves every piece can make in the current turn
+  public getAllValidMoves = (game) => {
+    if (game.status !== EGameStatus.WHITE && game.status !== EGameStatus.BLACK) { return []; }
+    let moves = [];
+    this.playerPieces(game.status, game.board).forEach(piece => {
+      moves = [ ...moves, ...this.getValidMoves(game, piece.pos) ];
+    });
+    return moves;
+  };
 
-  // It returns an array with all possible moves at the current state
+  // Returns an array with the (color) players pieces and their positions
+  public playerPieces = (color, board): Array<IPiece & { pos: number }> => {
+    return board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(p => p.color === color);
+  }
+
+  // It returns an array with all possible moves a single piece can make at the current state
   // Every move contains: {
   //    posOri --> original position of the moving piece
   //    posDes --> destination position of the moving piece
   //    piece ---> object with the moving piece ({ code, color, name })
   //    takes ---> the piece that is being taken (if any. if none, 0)
+  //    note ----> official notation text for the move
   //    nextBoard --> The game.board[] array after the move
   // }
   public getValidMoves = (game, posOri, fullCheck = true) => {
     const board = game.board;
     const piece = this.getPiece(board[posOri]);
     const [col, row] = this.square2D(posOri);
-    const validMoves = [];
+    const validMoves: Array<IMove> = [];
     const yourColor = piece.color;
     const otherColor = piece.color === 'WHITE' ? 'BLACK' : 'WHITE';
 
@@ -226,9 +266,6 @@ export class StoreService {
       };
     };
 
-    // Returns an array with the (color) players pieces and their positions
-    const playerPieces = (color) => board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(p => p.color === color);
-
     // Adds a move to the validMoves[] array
     const addMove = (col, row) => {
       if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
@@ -237,6 +274,7 @@ export class StoreService {
         nextMove.nextBoard[posDes] = nextMove.nextBoard[posOri];
         nextMove.nextBoard[posOri] = 0;
         nextMove.piece = piece.keyFilter('code,color,name');
+        nextMove.note = '';  // will be calculated later
         validMoves.push(nextMove);
         return nextMove;
       }
@@ -326,7 +364,7 @@ export class StoreService {
     // Checks if the given position is being attacked by an opponent's piece. If so, it returns the attacker piece
     const isPosAttacked = (pos) => {
       if (!fullCheck) { return false; } // avoid recursivity
-      for (const otherPiece of playerPieces(otherColor)) {
+      for (const otherPiece of this.playerPieces(otherColor, board)) {
         const attackMoves = this.getValidMoves(game, otherPiece.pos, false).filter(move => move.posDes === pos);
         if (attackMoves.length > 0) { return otherPiece; }
       }
@@ -337,7 +375,7 @@ export class StoreService {
     // - All spaces between the king and the rook must be empty.
     // - The king cannot be in check.
     // - The squares that the king passes over must not be under attack, nor the square where it lands on.
-    if (piece.code === 13 && piece.color === yourColor && game.history.every(m => m.piece !== 13)) { // white king
+    if (piece.code === W_KING && piece.color === yourColor && game.history.every(m => m.piece.code !== W_KING)) { // white king
       if (game.history.every(m => m.piece !== 16)) {  // King <-> Right Rook
         if (pieceAt(5, 7).isEmpty() && pieceAt(6, 7).isEmpty()) {
           if (!isPosAttacked(60) && !isPosAttacked(61) && !isPosAttacked(62)) {
@@ -346,7 +384,7 @@ export class StoreService {
           }
         }
       }
-      if (game.history.every(m => m.piece !== 9)) { // Left Rook <-> King
+      if (game.history.every(m => m.piece.code !== 9)) { // Left Rook <-> King
         if (pieceAt(1, 7).isEmpty() && pieceAt(2, 7).isEmpty() && pieceAt(3, 7).isEmpty()) {
           if (!isPosAttacked(60) && !isPosAttacked(59) && !isPosAttacked(58)) {
             const move = addMove(2, 7);
@@ -355,8 +393,8 @@ export class StoreService {
         }
       }
     }
-    if (piece.code === 29 && piece.color === yourColor && game.history.every(m => m.piece !== 29)) { // black king
-      if (game.history.every(m => m.piece !== 32)) {  // Right Rook
+    if (piece.code === B_KING && piece.color === yourColor && game.history.every(m => m.piece.code !== B_KING)) { // black king
+      if (game.history.every(m => m.piece.code !== 32)) {  // Right Rook
         if (pieceAt(5, 0).isEmpty() && pieceAt(6, 0).isEmpty()) {
           if (!isPosAttacked(4) && !isPosAttacked(5) && !isPosAttacked(6)) {
             const move = addMove(6, 0);
@@ -364,7 +402,7 @@ export class StoreService {
           }
         }
       }
-      if (game.history.every(m => m.piece !== 25)) { // Left Rook
+      if (game.history.every(m => m.piece.code !== 25)) { // Left Rook
         if (pieceAt(1, 0).isEmpty() && pieceAt(2, 0).isEmpty() && pieceAt(3, 0).isEmpty()) {
           if (!isPosAttacked(4) && !isPosAttacked(3) && !isPosAttacked(2)) {
             const move = addMove(2, 0);
@@ -386,10 +424,10 @@ export class StoreService {
       nextGame.history.push(move);
       // Filter opponent's pieces and calculate all opponent's valid moves after move.
       // If any of these calculated valid moves takes the king, invalidate the current move.
-      return !playerPieces(otherColor).some(piece => {
+      return !this.playerPieces(otherColor, board).some(piece => {
         const killMoves = this.getValidMoves(nextGame, piece.pos, false).filter(nextMove => {
-          return yourColor === 'WHITE' && nextMove.takes === 13
-              || yourColor === 'BLACK' && nextMove.takes === 29;
+          return yourColor === 'WHITE' && nextMove.takes === W_KING
+              || yourColor === 'BLACK' && nextMove.takes === B_KING;
         });
         // if (killMoves.length > 0) { console.log('Killing moves', piece, killMoves); }
         return killMoves.length > 0;
@@ -400,8 +438,7 @@ export class StoreService {
 
 
   // Check if the move is a Pawn reaching the other side of the board
-  public isPawnFinished = (posOri, posDes, board) => {
-    const piece = this.getPiece(board[posOri]);
+  public isPawnFinished = (posOri, posDes, piece) => {
     if (piece.name === 'pawn') {
       if (piece.color === 'WHITE' && [0,1,2,3,4,5,6,7].includes(posDes)) { return true; }
       if (piece.color === 'BLACK' && [56,57,58,59,60,61,62,63].includes(posDes)) { return true; }
@@ -409,22 +446,101 @@ export class StoreService {
     return false;
   }
 
-  // Returns an array with the (color) players pieces and their positions
-  // public playersPieces = (board, color) => {
-  //   return board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(piece => piece.color === color);
-  // }
 
-
-  public isCheckMate = (game, lastMove) => {
-    const color = lastMove.piece.color === 'WHITE' ? 'BLACK' : 'WHITE';
-    const pieces = game.board.map((code, pos) => ({ ...this.getPiece(code), pos })).filter(piece => piece.color === color);
-    for (const piece of pieces) {
-      const moves = this.getValidMoves(game, piece.pos);
-      if (moves.length) {
-        return false;
+  // Check if the current game is in check.
+  // If the last color plays again, and there is a valid move that kills the king, it's check.
+  public isCheck = (game) => {
+    const lastMoveColor = game.history.getLast()?.piece?.color;
+    for (const piece of this.playerPieces(lastMoveColor, game.board)) {
+      for (const move of this.getValidMoves(game, piece.pos, false)) {
+        if (lastMoveColor === 'WHITE' && move.takes === B_KING) { return true; }
+        if (lastMoveColor === 'BLACK' && move.takes === W_KING) { return true; }
       }
+    }
+    return false;
+  }
+
+  // Check if the current game is in check mate. Calculate all next valid moves. If none, it's mate
+  public isCheckMate = (game) => {
+    const nextMoveColor = game.history.getLast()?.piece?.color === 'WHITE' ? 'BLACK' : 'WHITE'
+    const pieces = this.playerPieces(nextMoveColor, game.board);
+    for (const piece of pieces) { // If there is a valid move, it's not mate
+      if (this.getValidMoves(game, piece.pos).length) { return false; }
     }
     return true;
   }
+
+
+
+  public getMoveNote = (game, posOri, posDes, promotedPieceCode?) => {
+
+    // Return the move notation string https://en.wikipedia.org/wiki/Algebraic_notation_(chess)#Notation_for_moves
+    const getNonUniqueNote = (move: IMove, oriFile = false, oriRank = false) => {
+      let mLetter = false;    // format[0]
+      // let oriFile = false; // format[1]
+      // let oriRank = false; // format[2]
+      let xTaking = false;    // format[3]
+      let desFile = true;     // format[4]
+      let desRank = true;     // format[5]
+      let promote = false;    // format[6]
+
+      let note = '';
+      if (move.piece.name !== 'pawn') { mLetter = true; }               // Piece letter (except pawn)
+      if (move.piece.name === 'pawn' && move.takes) { oriFile = true; } // When pawn takes, add origin file
+      if (move.takes) { xTaking = true; } // When taking, add the 'x' between origin / dest
+      if (promotedPieceCode) { promote = true; } // If a pawn is being promoted
+
+      // Each position indicates whether to leave it empty (false) or to add the value (true)
+      note = (!mLetter ? '' : move.piece.name[0].toUpperCase())         // 0 - Letter of the moving piece
+           + (!oriFile ? '' : 'abcdefgh'[move.posOri % 8])              // 1 - Original file of the moving piece (oriFile)
+           + (!oriRank ? '' : (8 - Math.floor(move.posOri / 8)) + '')   // 2 - Original rank of the moving piece (oriRank)
+           + (!xTaking ? '' : 'x')                                      // 3 - Whether it takes another piece (x)
+           + (!desFile ? '' : 'abcdefgh'[move.posDes % 8])              // 4 - Destination file of the moving piece (desFile)
+           + (!desRank ? '' : (8 - Math.floor(move.posDes / 8)) + '')   // 5 - Destination rank of the moving piece (desRank)
+           + (!promote ? '' : ('=' + this.getPiece(promotedPieceCode).name[0].toUpperCase())); // 6 - Letter of the promoted piece
+
+      return note;
+    };
+
+
+    // Disambiguating moves
+    // When two (or more) identical pieces can move to the same square, the moving piece is uniquely identified
+    // by specifying the piece's letter, followed by (in descending order of preference):
+    //  1. the file of departure (if they differ); or
+    //  2. the rank of departure (if the files are the same but the ranks differ); or
+    //  3. both the file and rank of departure (if neither alone is sufficient to identify the piece
+    const allMoves = this.getAllValidMoves(game).map(move => {
+      return [
+        { ...move, note: getNonUniqueNote(move, false, false) },  // no file nor rank
+        { ...move, note: getNonUniqueNote(move, true,  false) },  // add file
+        { ...move, note: getNonUniqueNote(move, false, true)  },  // add rank
+        { ...move, note: getNonUniqueNote(move, true,  true)  },  // add file + rank
+      ];
+    });
+    const moves = allMoves.map(move => {
+      if (allMoves.filter(m => m[0].note === move[0].note).length < 2) { return move[0]; }
+      if (allMoves.filter(m => m[1].note === move[1].note).length < 2) { return move[1]; }
+      if (allMoves.filter(m => m[2].note === move[2].note).length < 2) { return move[2]; }
+      if (allMoves.filter(m => m[3].note === move[3].note).length < 2) { return move[3]; }
+      console.error('Ambiguity with the move notation!');
+      return move[0];
+    });
+
+    const move = moves.find(move => move.posOri === posOri && move.posDes === posDes);
+
+    // Castling move
+    if (move.piece.code === W_KING && move.posOri === 60 && move.posDes === 62) { move.note = 'O-O'; }   // Kingside castling
+    if (move.piece.code === W_KING && move.posOri === 60 && move.posDes === 58) { move.note = 'O-O-O'; } // Queenside castling
+    if (move.piece.code === B_KING && move.posOri === 4 && move.posDes === 2) { move.note = 'O-O-O'; }   // Kingside castling
+    if (move.piece.code === B_KING && move.posOri === 4 && move.posDes === 6) { move.note = 'O-O'; }     // Queenside castling
+
+    // Check if the status after the move is a check mate
+    const nextGame = dCopy({ ...game, board: move.nextBoard, history: [ ...game.history, move ] });
+
+    if (this.isCheckMate(nextGame))  { move.note += '#'; } // Add a check mate mark '#'
+    else if (this.isCheck(nextGame)) { move.note += '+'; } // Add a check mark '+'
+
+    return move?.note;
+  };
 
 }

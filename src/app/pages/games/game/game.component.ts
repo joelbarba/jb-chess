@@ -1,5 +1,5 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {EGameStatus, StoreService} from "@core/store/store.service";
 import {JbProfileService} from "@core/common/jb-profile.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -30,6 +30,7 @@ export class GameComponent implements OnInit, OnDestroy {
   constructor(
     public store: StoreService,
     public profile: JbProfileService,
+    public router: Router,
     private route: ActivatedRoute,
     private modal: NgbModal,
     private confirm: JbConfirmService,
@@ -130,7 +131,8 @@ export class GameComponent implements OnInit, OnDestroy {
       if (pieceAtPos.color === this.yourColor) { this.selectPiece(pos); } // Selecting another of your pieces (switch selection)
       if (pieceAtPos.color !== this.yourColor) {
 
-        if (this.store.isPawnFinished(this.selPos, pos, this.game.board)) { // Select a promoted piece for a pawn
+        const oriPiece = this.store.getPiece(this.game.board[this.selPos]); // Moving pawn
+        if (this.store.isPawnFinished(this.selPos, pos, oriPiece)) { // Select a promoted piece for a pawn
           const modalRef = this.modal.open(PieceSelectorModal, { size: 'md', backdrop: 'static' });
           modalRef.componentInstance.color = this.yourColor;
           modalRef.result.then(code => this.commitMove(this.game, this.selPos, pos, code)).finally(() => this.clearPhase());
