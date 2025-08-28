@@ -44,7 +44,7 @@ Every piece has a code from 1 to 32 (1-16 white, 17-32 black).
 <hr>
 
 The most important part of the game is the function that checks all possible valid moves from a given state for a specific piece: [store.service.ts#L336](./src/app/core/store/store.service.ts#L336)
-```
+```typescript
   // It returns an array with all possible moves a single piece can make at the current state
   // Every move contains: {
   //    posOri --> original position of the moving piece
@@ -54,7 +54,7 @@ The most important part of the game is the function that checks all possible val
   //    note ----> official notation text for the move
   //    nextBoard --> The game.board[] array after the move
   // }
-  getValidMoves = (game, posOri, fullCheck = true) => { ... }
+  public getValidMoves = (game, posOri, fullCheck = true) => { ... }
 ```
 
 ## Features
