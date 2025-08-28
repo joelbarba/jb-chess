@@ -2,9 +2,12 @@
 
 Web app to play chess online<br/>
 <br/>
-As an Chess player, I wanted to take the challenge to code a chess game + post it online so I can play with my friends.
+As an chess fan, I wanted to take the challenge to code a chess game + post it online so I can play my friends.
 
 ![Screenshot of a game example](./sample1.png)
+
+I have a running demo on https://jb-chess.netlify.app (login required)<br/>
+You can play a guest on this link: https://jb-chess.netlify.app?gameId=qVkc0YMsNL7O4kpgni57&token=CcN8KxuehsJPI0wm6OfU
 
 
 ## Backend Support
